@@ -7,3 +7,6 @@ clean:
 build:
     cmake -B build -DCMAKE_BUILD_TYPE=Debug
     cmake --build build
+
+debug:
+    gdb ./build/main
