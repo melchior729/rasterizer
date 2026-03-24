@@ -1,4 +1,8 @@
 run:
+    just build
+    just rerun
+
+rerun:
     ./build/main
 
 clean:
