@@ -4,6 +4,7 @@
 // @date Mar 23 2026
 
 #include "frame_buffer.hpp"
+#include "rasterizer.hpp"
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_pixels.h>
@@ -14,8 +15,8 @@
 #include <string>
 
 #define SDL_MAIN_USE_CALLBACKS 1
-static constexpr std::size_t HEIGHT = 720;
-static constexpr std::size_t WIDTH = 1280;
+static constexpr int WIDTH = 1280;
+static constexpr int HEIGHT = 720;
 static const std::string TITLE = "Abhay's Rasterizer";
 
 struct AppState {
@@ -33,11 +34,6 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   auto *state = new AppState();
   state->buffer = std::make_unique<FrameBuffer>(WIDTH, HEIGHT);
   *appstate = state;
-
-  // draw line
-  for (std::size_t i = 0; i < HEIGHT; i++) {
-    state->buffer->setPixel(i, i, 0xFF, 0xFF, 0xFF);
-  }
 
   if (!SDL_CreateWindowAndRenderer(TITLE.c_str(), WIDTH, HEIGHT, 0,
                                    &state->window, &state->renderer)) {
