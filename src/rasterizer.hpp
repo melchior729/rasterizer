@@ -7,9 +7,9 @@ struct Vec2 {
   int y;
 };
 
-void drawPoint(FrameBuffer &pixels, Vec2 p, uint32_t color);
+void draw_point(FrameBuffer &buffer, Vec2 p, uint32_t color);
 
-void drawLine(FrameBuffer &pixels, Vec2 p0, Vec2 p1, uint32_t color);
+void draw_line(FrameBuffer &buffer, Vec2 p0, Vec2 p1, uint32_t color);
 
-void drawTriangle(FrameBuffer &pixels, Vec2 p0, Vec2 p1, Vec2 p2,
-                  uint32_t color);
+void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
+                   uint32_t color);
