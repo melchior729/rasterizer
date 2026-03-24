@@ -21,6 +21,7 @@ static const std::string TITLE = "Abhay's Rasterizer";
 struct AppState {
   SDL_Window *window = nullptr;
   SDL_Renderer *renderer = nullptr;
+  SDL_Texture *texture = nullptr;
   std::unique_ptr<FrameBuffer> buffer;
 };
 
@@ -45,6 +46,10 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     return SDL_APP_FAILURE;
   }
 
+  state->texture =
+      SDL_CreateTexture(state->renderer, SDL_PIXELFORMAT_ARGB8888,
+                        SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+
   SDL_SetRenderVSync(state->renderer, 1);
   return SDL_APP_CONTINUE;
 }
@@ -57,13 +62,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 void draw_buffer(AppState *state) {
-  const auto &buffer = state->buffer;
-  for (std::size_t i = 0; i < WIDTH * HEIGHT; i++) {
-    uint32_t color = buffer->pixels.at(i);
-    SDL_SetRenderDrawColor(state->renderer, color >> 16, color >> 8, color,
-                           color >> 24);
-    SDL_RenderPoint(state->renderer, i % WIDTH, i / WIDTH);
-  }
+  SDL_UpdateTexture(state->texture, nullptr, state->buffer->pixels.data(),
+                    WIDTH * sizeof(uint32_t));
+  SDL_RenderTexture(state->renderer, state->texture, nullptr, nullptr);
 }
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
@@ -84,6 +85,7 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   const auto *state = static_cast<AppState *>(appstate);
   SDL_DestroyRenderer(state->renderer);
   SDL_DestroyWindow(state->window);
+  SDL_DestroyTexture(state->texture);
   delete state;
 
   SDL_Quit();
