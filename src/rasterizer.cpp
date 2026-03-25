@@ -1,3 +1,8 @@
+/// @file rasterizer.cpp
+/// @brief implementation of rasterizer functions
+/// @author Abhay Manoj
+/// @date Mar 24 2026
+
 #include "rasterizer.hpp"
 #include <cstdlib>
 
@@ -24,7 +29,6 @@ void draw_line(FrameBuffer &buffer, Vec2 p0, Vec2 p1, uint32_t color) {
   int error = 2 * slow - fast;
 
   int x = p0.x, y = p0.y;
-
   for (int i = 0; i <= fast; i++) {
     draw_point(buffer, {x, y}, color);
     if (error > 0) {
@@ -42,3 +46,6 @@ void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
   draw_line(buffer, p0, p2, color);
   draw_line(buffer, p1, p2, color);
 }
+
+void draw_filled_triangle(FrameBuffer *buffer, Vec2 p0, Vec2 p1, Vec2 p2,
+                          uint32_t color) {}

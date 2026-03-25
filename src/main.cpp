@@ -20,12 +20,14 @@ static constexpr int HEIGHT = 720;
 static constexpr uint32_t RED = 0xFFFF0000;
 static const std::string TITLE = "Abhay's Rasterizer";
 
+/// @brief contains the required state of the application
 struct AppState {
   SDL_Window *window = nullptr;
   SDL_Renderer *renderer = nullptr;
   SDL_Texture *texture = nullptr;
   std::unique_ptr<FrameBuffer> buffer;
 };
+
 void draw_star(FrameBuffer &buffer) {
   Vec2 p1 = {640, 110};
   Vec2 p2 = {423, 485};
@@ -93,9 +95,9 @@ void SDL_AppQuit(void *appstate, SDL_AppResult result) {
   }
 
   const auto *state = static_cast<AppState *>(appstate);
+  SDL_DestroyTexture(state->texture);
   SDL_DestroyRenderer(state->renderer);
   SDL_DestroyWindow(state->window);
-  SDL_DestroyTexture(state->texture);
   delete state;
 
   SDL_Quit();
