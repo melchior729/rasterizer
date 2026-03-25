@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 4.2.3)
 project(rasterizer)
 
-set(CMAKE_CXX_VERSION 23)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(rasterizer src/rasterizer.cpp)
