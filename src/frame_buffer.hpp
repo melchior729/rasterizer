@@ -20,8 +20,8 @@ struct FrameBuffer {
       : width(w), height(h), pixels(width * height) {}
 
   /// @brief sets the pixel at x, y with color
-  /// @param x the x position
-  /// @param y the y position, top left is 0
+  /// @param x the x coordinate
+  /// @param y the y coordinate, top left is 0
   /// @param color the color to set the pixel
   void setPixel(int x, int y, uint32_t color) {
     if (x < 0 || x >= (int)width || y < 0 || y >= (int)height) {
