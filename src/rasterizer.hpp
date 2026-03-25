@@ -40,5 +40,5 @@ void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
 /// @param p1 the second corner of the triangle
 /// @param p2 the third corner of the triangle
 /// @color the color to paint the point
-void draw_filled_triangle(FrameBuffer *buffer, Vec2 p0, Vec2 p1, Vec2 p2,
+void draw_filled_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
                           uint32_t color);
