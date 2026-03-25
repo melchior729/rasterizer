@@ -17,7 +17,6 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 static constexpr int WIDTH = 1280;
 static constexpr int HEIGHT = 720;
-static constexpr uint32_t RED = 0xFFFF0000;
 static const std::string TITLE = "Abhay's Rasterizer";
 
 /// @brief contains the required state of the application
@@ -28,16 +27,26 @@ struct AppState {
   std::unique_ptr<FrameBuffer> buffer;
 };
 
-void draw_star(FrameBuffer &buffer) {
-  Vec2 p1 = {640, 110};
-  Vec2 p2 = {423, 485};
-  Vec2 p3 = {857, 485};
-  Vec2 p4 = {640, 610};
-  Vec2 p5 = {423, 235};
-  Vec2 p6 = {857, 235};
+void draw_sword(FrameBuffer &buffer) {
+  static constexpr uint32_t SILVER = 0xFFC0C0C0;
+  static constexpr uint32_t GOLD = 0xFFFFD700;
+  static constexpr uint32_t BROWN = 0xFF8B4513;
 
-  draw_triangle(buffer, p1, p2, p3, 0xFFFF0000);
-  draw_triangle(buffer, p4, p5, p6, 0xFFFF0000);
+  // blade left face
+  draw_filled_triangle(buffer, {640, 50}, {600, 550}, {640, 550}, SILVER);
+  // blade right face
+  draw_filled_triangle(buffer, {640, 50}, {640, 550}, {680, 550}, SILVER);
+
+  // crossguard left
+  draw_filled_triangle(buffer, {450, 550}, {640, 520}, {640, 580}, GOLD);
+  // crossguard right
+  draw_filled_triangle(buffer, {830, 550}, {640, 520}, {640, 580}, GOLD);
+
+  // handle
+  draw_filled_triangle(buffer, {620, 580}, {660, 580}, {640, 700}, BROWN);
+
+  // pommel
+  draw_filled_triangle(buffer, {610, 700}, {670, 700}, {640, 740}, GOLD);
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
@@ -49,7 +58,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   state->buffer = std::make_unique<FrameBuffer>(WIDTH, HEIGHT);
   *appstate = state;
 
-  draw_star(*state->buffer);
+  draw_sword(*state->buffer);
 
   if (!SDL_CreateWindowAndRenderer(TITLE.c_str(), WIDTH, HEIGHT, 0,
                                    &state->window, &state->renderer)) {
