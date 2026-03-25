@@ -45,7 +45,7 @@ public:
     return pixels[y * width + x] == color;
   }
 
-  /// @brief fills the display buffer with the given color
+  /// @brief fills the display buffer with the color, default black
   /// @param color the color to fill the buffer with
   void fill(uint32_t color = 0xFF000000) {
     std::fill(pixels.begin(), pixels.end(), color);
