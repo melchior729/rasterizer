@@ -37,7 +37,7 @@ void draw_line(FrameBuffer &buffer, Vec2 p0, Vec2 p1, uint32_t color) {
   }
 }
 
-static double edge_function(Vec2 p0, Vec2 p1, Vec2 p2) {
+static float edge_function(Vec2 p0, Vec2 p1, Vec2 p2) {
   return (double)(p2.y * (p1.x - p0.x) - p0.y * (p1.x - p2.x) +
                   p1.y * (p0.x - p2.x));
 }
@@ -52,12 +52,12 @@ static uint32_t blend_channel(double u, double v, double w, uint32_t c0,
 void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2, uint32_t c0,
                    uint32_t c1, uint32_t c2) {
 
-  const double det = edge_function(p0, p1, p2);
+  const float det = edge_function(p0, p1, p2);
   if (std::abs(det) < 1e-7) {
     return;
   }
 
-  const double inv_det = 1.0 / det;
+  const float inv_det = 1.0 / det;
   const int min_x = std::min({p0.x, p1.x, p2.x});
   const int min_y = std::min({p0.y, p1.y, p2.y});
   const int max_x = std::max({p0.x, p1.x, p2.x});
@@ -65,9 +65,9 @@ void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2, uint32_t c0,
 
   for (int y = min_y; y <= max_y; y++) {
     for (int x = min_x; x <= max_x; x++) {
-      const double u = edge_function({x, y}, p1, p2) * inv_det;
-      const double v = edge_function(p0, {x, y}, p2) * inv_det;
-      const double w = 1.0 - u - v;
+      const float u = edge_function({x, y}, p1, p2) * inv_det;
+      const float v = edge_function(p0, {x, y}, p2) * inv_det;
+      const float w = 1.0 - u - v;
 
       if (u >= 0 && v >= 0 && w >= 0) {
         auto red = blend_channel(u, v, w, c0, c1, c2, 16);
