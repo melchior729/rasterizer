@@ -5,6 +5,7 @@
 
 #include "rasterizer.hpp"
 #include <algorithm>
+#include <cmath>
 
 void draw_point(FrameBuffer &buffer, Vec2 p, uint32_t color) {
   buffer.set_pixel(p.x, p.y, color);
@@ -36,37 +37,57 @@ void draw_line(FrameBuffer &buffer, Vec2 p0, Vec2 p1, uint32_t color) {
   }
 }
 
-void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
-                   uint32_t color) {
-  draw_line(buffer, p0, p1, color);
-  draw_line(buffer, p0, p2, color);
-  draw_line(buffer, p1, p2, color);
-}
-
 static double edge_function(Vec2 p0, Vec2 p1, Vec2 p2) {
   return (double)(p2.y * (p1.x - p0.x) - p0.y * (p1.x - p2.x) +
                   p1.y * (p0.x - p2.x));
 }
 
-void draw_filled_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
-                          uint32_t color) {
+static uint32_t blend_channel(double u, double v, double w, uint32_t c0,
+                              uint32_t c1, uint32_t c2, int shift) {
+  return std::round((double)((c0 >> shift) & 0xFF) * u +
+                    (double)((c1 >> shift) & 0xFF) * v +
+                    (double)((c2 >> shift) & 0xFF) * w);
+}
+
+void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2, uint32_t c0,
+                   uint32_t c1, uint32_t c2) {
+
   const double det = edge_function(p0, p1, p2);
   if (std::abs(det) < 1e-7) {
     return;
   }
+
   const double inv_det = 1.0 / det;
   const int min_x = std::min({p0.x, p1.x, p2.x});
   const int min_y = std::min({p0.y, p1.y, p2.y});
   const int max_x = std::max({p0.x, p1.x, p2.x});
   const int max_y = std::max({p0.y, p1.y, p2.y});
+
   for (int y = min_y; y <= max_y; y++) {
     for (int x = min_x; x <= max_x; x++) {
-      const double l1 = edge_function({x, y}, p1, p2) * inv_det;
-      const double l2 = edge_function(p0, {x, y}, p2) * inv_det;
-      const double l3 = 1.0 - l1 - l2;
-      if (l1 >= 0 && l2 >= 0 && l3 >= 0) {
+      const double u = edge_function({x, y}, p1, p2) * inv_det;
+      const double v = edge_function(p0, {x, y}, p2) * inv_det;
+      const double w = 1.0 - u - v;
+
+      if (u >= 0 && v >= 0 && w >= 0) {
+        auto red = blend_channel(u, v, w, c0, c1, c2, 16);
+        auto green = blend_channel(u, v, w, c0, c1, c2, 8);
+        auto blue = blend_channel(u, v, w, c0, c1, c2, 0);
+        uint32_t color = (0xFF << 24) | (red << 16) | (green << 8) | (blue);
         draw_point(buffer, {x, y}, color);
       }
     }
   }
+}
+
+void draw_flat_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
+                        uint32_t color) {
+  draw_triangle(buffer, p0, p1, p2, color, color, color);
+}
+
+void draw_triangle_outline(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
+                           uint32_t color) {
+  draw_line(buffer, p0, p1, color);
+  draw_line(buffer, p0, p2, color);
+  draw_line(buffer, p1, p2, color);
 }
