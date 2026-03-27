@@ -27,25 +27,26 @@ struct AppState {
   std::unique_ptr<FrameBuffer> buffer;
 };
 
-void render_test_pattern(FrameBuffer &buffer) {
-  // Initialize buffer with a clear color and depth buffer with 1.0 (far plane)
-  // Ensure your FrameBuffer initialization handles this.
-
-  // Triangle 1: Blue (Further away)
-  Vertex vBlue0 = {{100.0f, 100.0f, 0.9f}, {0}, {0}, 0xFF0000FF};
-  Vertex vBlue1 = {{400.0f, 100.0f, 0.9f}, {0}, {0}, 0xFF0000FF};
-  Vertex vBlue2 = {{250.0f, 400.0f, 0.9f}, {0}, {0}, 0xFF0000FF};
-
-  // Triangle 2: Red (Closer)
-  Vertex vRed0 = {{150.0f, 150.0f, 0.1f}, {0}, {0}, 0xFFFF0000};
-  Vertex vRed1 = {{450.0f, 150.0f, 0.1f}, {0}, {0}, 0xFFFF0000};
-  Vertex vRed2 = {{300.0f, 450.0f, 0.1f}, {0}, {0}, 0xFFFF0000};
-
-  // Draw further triangle first
-  draw_triangle(buffer, vBlue0, vBlue1, vBlue2);
-
-  // Draw closer triangle second
-  draw_triangle(buffer, vRed0, vRed1, vRed2);
+void draw_attribute_test(FrameBuffer &buffer) {
+  Vertex v0 = {
+      .position = {300.0f, 600.0f, 1.0f},
+      .normal = {-1.0f, 0.0f, 1.0f},
+      .uv = {0.0f, 1.0f},
+      .color = 0xFFFF0000 // red
+  };
+  Vertex v1 = {
+      .position = {500.0f, 300.0f, 1.0f},
+      .normal = {0.0f, 1.0f, 1.0f},
+      .uv = {0.5f, 0.0f},
+      .color = 0xFF00FF00 // green
+  };
+  Vertex v2 = {
+      .position = {700.0f, 600.0f, 1.0f},
+      .normal = {1.0f, 0.0f, 1.0f},
+      .uv = {1.0f, 1.0f},
+      .color = 0xFF0000FF // blue
+  };
+  draw_triangle(buffer, v0, v1, v2);
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
@@ -57,7 +58,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   state->buffer = std::make_unique<FrameBuffer>(WIDTH, HEIGHT);
   *appstate = state;
 
-  render_test_pattern(*state->buffer);
+  draw_attribute_test(*state->buffer);
 
   if (!SDL_CreateWindowAndRenderer(TITLE.c_str(), WIDTH, HEIGHT, 0,
                                    &state->window, &state->renderer)) {

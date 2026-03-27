@@ -64,11 +64,18 @@ void draw_triangle(FrameBuffer &buffer, Vertex v0, Vertex v1, Vertex v2) {
       }
 
       const float z = u * v0.position.z + v * v1.position.z + w * v2.position.z;
+      const Vec2 uv = {(float)(v0.uv.x * u + v1.uv.x * v + v2.uv.x * w),
+                       (float)(v0.uv.y * u + v1.uv.y * v + v2.uv.y * w)};
+
+      const Vec3 normal = {
+          (float)(v0.normal.x * u + v1.normal.x * v + v2.normal.x * w),
+          (float)(v0.normal.y * u + v1.normal.y * v + v2.normal.y * w),
+          (float)(v0.normal.z * u + v1.normal.z * v + v2.normal.z * w)};
       auto red = blend_channel(u, v, w, v0.color, v1.color, v2.color, 16);
       auto green = blend_channel(u, v, w, v0.color, v1.color, v2.color, 8);
       auto blue = blend_channel(u, v, w, v0.color, v1.color, v2.color, 0);
       uint32_t color = (0xFF << 24) | (red << 16) | (green << 8) | (blue);
-      Vertex vt = {{(float)x, (float)y, (float)z}, {0}, {0}, color};
+      Vertex vt = {{(float)x, (float)y, (float)z}, normal, uv, color};
       draw_point(buffer, vt);
     }
   }
