@@ -6,24 +6,25 @@
 
 #include "frame_buffer.hpp"
 
-/// @brief contains a x coordinate and y coordinate
-struct Vec2 {
-  int x;
-  int y;
+/// @brief contains x, y, z coordinates
+struct Vec3 {
+  float x;
+  float y;
+  float z;
 };
 
-/// @brief draws the given point with the color
+/// @brief draws the given point with the color, only if z depth is closest
 /// @param buffer the buffer to draw in
-/// @param p the point containg x, y
-/// @color the color to paint the point
-void draw_point(FrameBuffer &buffer, Vec2 p, uint32_t color);
+/// @param p the point to draw
+/// @param color the color to paint the point
+void draw_point(FrameBuffer &buffer, Vec3 p, uint32_t color);
 
 /// @brief draws the given line with the color
 /// @param buffer the buffer to draw in
 /// @param p0 the start of the line
 /// @param p1 the end of the line
 /// @color the color to paint the line
-void draw_line(FrameBuffer &buffer, Vec2 p0, Vec2 p1, uint32_t color);
+void draw_line(FrameBuffer &buffer, Vec3 p0, Vec3 p1, uint32_t color);
 
 /// @brief draws the outline of the triangle with the color
 /// @param buffer the buffer to draw in
@@ -31,7 +32,7 @@ void draw_line(FrameBuffer &buffer, Vec2 p0, Vec2 p1, uint32_t color);
 /// @param p1 the second corner of the triangle
 /// @param p2 the third corner of the triangle
 /// @color the color to paint the point
-void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2, uint32_t c0,
+void draw_triangle(FrameBuffer &buffer, Vec3 p0, Vec3 p1, Vec3 p2, uint32_t c0,
                    uint32_t c1, uint32_t c2);
 
 /// @brief draws the outline of the triangle with the color
@@ -40,7 +41,7 @@ void draw_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2, uint32_t c0,
 /// @param p1 the second corner of the triangle
 /// @param p2 the third corner of the triangle
 /// @color the color to paint the point
-void draw_triangle_outline(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
+void draw_triangle_outline(FrameBuffer &buffer, Vec3 p0, Vec3 p1, Vec3 p2,
                            uint32_t color);
 
 /// @brief draws the outline of the triangle with the color
@@ -49,5 +50,5 @@ void draw_triangle_outline(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
 /// @param p1 the second corner of the triangle
 /// @param p2 the third corner of the triangle
 /// @color the color to paint the point
-void draw_flat_triangle(FrameBuffer &buffer, Vec2 p0, Vec2 p1, Vec2 p2,
+void draw_flat_triangle(FrameBuffer &buffer, Vec3 p0, Vec3 p1, Vec3 p2,
                         uint32_t color);
