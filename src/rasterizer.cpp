@@ -34,7 +34,8 @@ static uint32_t blend_channel(double u, double v, double w, uint32_t c0,
                     (double)((c2 >> shift) & 0xFF) * w);
 }
 
-void draw_triangle(FrameBuffer &buffer, Vertex v0, Vertex v1, Vertex v2) {
+void draw_triangle(FrameBuffer &buffer, Vertex v0, Vertex v1, Vertex v2,
+                   Texture &texture) {
   const float det = edge_function(v0.position, v1.position, v2.position);
   if (std::abs(det) < 1e-7) {
     return;
@@ -71,10 +72,9 @@ void draw_triangle(FrameBuffer &buffer, Vertex v0, Vertex v1, Vertex v2) {
           (float)(v0.normal.x * u + v1.normal.x * v + v2.normal.x * w),
           (float)(v0.normal.y * u + v1.normal.y * v + v2.normal.y * w),
           (float)(v0.normal.z * u + v1.normal.z * v + v2.normal.z * w)};
-      auto red = blend_channel(u, v, w, v0.color, v1.color, v2.color, 16);
-      auto green = blend_channel(u, v, w, v0.color, v1.color, v2.color, 8);
-      auto blue = blend_channel(u, v, w, v0.color, v1.color, v2.color, 0);
-      uint32_t color = (0xFF << 24) | (red << 16) | (green << 8) | (blue);
+      int tx = uv.x * (texture.width - 1);
+      int ty = uv.y * (texture.height - 1);
+      uint32_t color = texture.pixels[ty * texture.width + tx];
       Vertex vt = {{(float)x, (float)y, (float)z}, normal, uv, color};
       draw_point(buffer, vt);
     }

@@ -27,6 +27,13 @@ struct Vertex {
   uint32_t color;
 };
 
+/// @brief
+struct Texture {
+  size_t width;
+  size_t height;
+  std::vector<uint32_t> pixels;
+};
+
 /// @brief draws the given point with the color, only if z depth is closest
 /// @param buffer the buffer to draw in
 /// @param v the vertex to draw
@@ -37,4 +44,6 @@ void draw_point(FrameBuffer &buffer, Vertex v);
 /// @param v0 the first corner of the triangle
 /// @param v1 the second corner of the triangle
 /// @param v2 the third corner of the triangle
-void draw_triangle(FrameBuffer &buffer, Vertex v0, Vertex v1, Vertex v2);
+/// @param texture
+void draw_triangle(FrameBuffer &buffer, Vertex v0, Vertex v1, Vertex v2,
+                   Texture &texture);

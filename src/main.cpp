@@ -3,8 +3,11 @@
 // @author Abhay Manoj
 // @date Mar 23 2026
 
+#define STB_IMAGE_IMPLEMENTATION
+
 #include "frame_buffer.hpp"
 #include "rasterizer.hpp"
+#include "stb_image.h"
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_pixels.h>
@@ -27,26 +30,31 @@ struct AppState {
   std::unique_ptr<FrameBuffer> buffer;
 };
 
-void draw_attribute_test(FrameBuffer &buffer) {
+void draw_texture_test(FrameBuffer &buffer) {
+  int width, height, channels;
+  unsigned char *data = stbi_load("texture.png", &width, &height, &channels, 4);
+  if (data == nullptr) {
+    return;
+  }
+
+  std::vector<uint32_t> pixels(width * height);
+  for (int i = 0; i < width * height; i++) {
+    unsigned char r = data[i * 4 + 0];
+    unsigned char g = data[i * 4 + 1];
+    unsigned char b = data[i * 4 + 2];
+    pixels[i] = (0xFF << 24) | (r << 16) | (g << 8) | b;
+  }
+  stbi_image_free(data);
+  Texture tex = {static_cast<size_t>(width), static_cast<size_t>(height),
+                 pixels};
   Vertex v0 = {
-      .position = {300.0f, 600.0f, 1.0f},
-      .normal = {-1.0f, 0.0f, 1.0f},
-      .uv = {0.0f, 1.0f},
-      .color = 0xFFFF0000 // red
-  };
+      .position = {640.0f, 100.0f, 1.0f}, .normal = {}, .uv = {0.5f, 0.0f}};
   Vertex v1 = {
-      .position = {500.0f, 300.0f, 1.0f},
-      .normal = {0.0f, 1.0f, 1.0f},
-      .uv = {0.5f, 0.0f},
-      .color = 0xFF00FF00 // green
-  };
+      .position = {150.0f, 650.0f, 1.0f}, .normal = {}, .uv = {0.0f, 1.0f}};
   Vertex v2 = {
-      .position = {700.0f, 600.0f, 1.0f},
-      .normal = {1.0f, 0.0f, 1.0f},
-      .uv = {1.0f, 1.0f},
-      .color = 0xFF0000FF // blue
-  };
-  draw_triangle(buffer, v0, v1, v2);
+      .position = {1130.0f, 650.0f, 1.0f}, .normal = {}, .uv = {1.0f, 1.0f}};
+
+  draw_triangle(buffer, v0, v1, v2, tex);
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
@@ -58,7 +66,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   state->buffer = std::make_unique<FrameBuffer>(WIDTH, HEIGHT);
   *appstate = state;
 
-  draw_attribute_test(*state->buffer);
+  draw_texture_test(*state->buffer);
+  // draw_attribute_test(*state->buffer);
 
   if (!SDL_CreateWindowAndRenderer(TITLE.c_str(), WIDTH, HEIGHT, 0,
                                    &state->window, &state->renderer)) {
