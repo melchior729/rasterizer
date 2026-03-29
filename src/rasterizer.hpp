@@ -5,6 +5,7 @@
 #pragma once
 
 #include "frame_buffer.hpp"
+#include <array>
 
 /// @brief vector of size 2
 struct Vec2 {
@@ -17,6 +18,17 @@ struct Vec3 {
   float x;
   float y;
   float z;
+};
+
+struct Vec4 {
+  float x;
+  float y;
+  float z;
+  float w;
+};
+
+struct Mat4 {
+  std::array<float, 16> m;
 };
 
 /// @brief vertex with position data and various fields
@@ -46,4 +58,4 @@ void draw_point(FrameBuffer &buffer, Vertex v);
 /// @param v2 the third corner of the triangle
 /// @param texture
 void draw_triangle(FrameBuffer &buffer, Vertex v0, Vertex v1, Vertex v2,
-                   Texture &texture);
+                   const Texture &texture);
