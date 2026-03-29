@@ -15,14 +15,15 @@
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_video.h>
 #include <memory>
-#include <string>
+#include <string_view>
 
 #define SDL_MAIN_USE_CALLBACKS 1
-static constexpr int WIDTH = 1280;
-static constexpr int HEIGHT = 720;
-static const std::string TITLE = "Abhay's Rasterizer";
+static constexpr int WIDTH{1280};
+static constexpr int HEIGHT{720};
+static constexpr std::string_view TITLE = "Abhay's Rasterizer";
 
 /// @brief contains the required state of the application
+/// REPLACE SDL POINTERS WITH UNIQUE PTR + CUSTOM DELETERS
 struct AppState {
   SDL_Window *window = nullptr;
   SDL_Renderer *renderer = nullptr;
@@ -67,9 +68,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   *appstate = state;
 
   draw_texture_test(*state->buffer);
-  // draw_attribute_test(*state->buffer);
 
-  if (!SDL_CreateWindowAndRenderer(TITLE.c_str(), WIDTH, HEIGHT, 0,
+  if (!SDL_CreateWindowAndRenderer(TITLE.data(), WIDTH, HEIGHT, 0,
                                    &state->window, &state->renderer)) {
     delete state;
     *appstate = nullptr;
