@@ -1,5 +1,5 @@
 /// @file frame_buffer.hpp
-/// @brief declaration of the FrameBuffer class
+/// @brief declaration of the FrameBuffer struct
 /// @author Abhay Manoj
 /// @date Mar 24 2026
 #pragma once
@@ -69,6 +69,8 @@ public:
 
 private:
   bool is_out_of_bounds(int x, int y) {
-    return (x < 0 || x >= (int)width || y < 0 || y >= (int)height);
+    int w = static_cast<int>(width);
+    int h = static_cast<int>(height);
+    return x < 0 || x >= w || y < 0 || y >= h;
   }
 };
