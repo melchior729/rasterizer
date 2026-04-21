@@ -1,7 +1,7 @@
 #define SDL_MAIN_USE_CALLBACKS 1
-#include "../include/color.hpp"
-#include "../include/config.hpp"
-#include "../include/frame_buffer.hpp"
+#include "color.hpp"
+#include "config.hpp"
+#include "frame_buffer.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
