@@ -1,22 +1,24 @@
 #define SDL_MAIN_USE_CALLBACKS 1
+#include "config.hpp"
+#include "frame_buffer.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
+#include <cstdint>
 #include <memory>
-
-constexpr int WIDTH{1920};
-constexpr int HEIGHT{1080};
-constexpr const char TITLE[]{"Abhay's Rasterizer"};
 
 struct SDL_Deleter {
   void operator()(SDL_Window *w) const { SDL_DestroyWindow(w); }
   void operator()(SDL_Renderer *r) const { SDL_DestroyRenderer(r); }
+  void operator()(SDL_Texture *t) const { SDL_DestroyTexture(t); }
 };
 
 struct AppState {
   std::unique_ptr<SDL_Window, SDL_Deleter> window{};
   std::unique_ptr<SDL_Renderer, SDL_Deleter> renderer{};
+  std::unique_ptr<SDL_Texture, SDL_Deleter> texture{};
+  std::unique_ptr<FrameBuffer> buffer{};
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
@@ -34,8 +36,15 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
     return SDL_APP_FAILURE;
   }
 
+  SDL_Texture *raw_texture =
+      SDL_CreateTexture(raw_renderer, SDL_PIXELFORMAT_ABGR8888,
+                        SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
+
   state->window.reset(raw_window);
   state->renderer.reset(raw_renderer);
+  state->texture.reset(raw_texture);
+  state->buffer = std::make_unique<FrameBuffer>();
+
   SDL_SetRenderVSync(state->renderer.get(), 1);
 
   *appstate = state.release();
@@ -52,8 +61,16 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
   auto *state = static_cast<AppState *>(appstate);
+
+  SDL_UpdateTexture(state->texture.get(), nullptr,
+                    state->buffer.get()->pixels.data(),
+                    WIDTH * sizeof(uint32_t));
+
   SDL_RenderClear(state->renderer.get());
+  SDL_RenderTexture(state->renderer.get(), state->texture.get(), nullptr,
+                    nullptr);
   SDL_RenderPresent(state->renderer.get());
+
   return SDL_APP_CONTINUE;
 }
 
