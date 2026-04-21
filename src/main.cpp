@@ -2,6 +2,8 @@
 #include "color.hpp"
 #include "config.hpp"
 #include "frame_buffer.hpp"
+#include "math.hpp"
+#include "rasterizer.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
@@ -21,6 +23,14 @@ struct AppState {
   std::unique_ptr<FrameBuffer> buffer{};
 };
 
+void draw_scene(FrameBuffer &buffer) {
+  Vec2 a{100, 100};
+  Vec2 b{960, 540};
+  Vec2 c{1820, 100};
+
+  draw_triangle(buffer, a, b, c, RED);
+}
+
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     return SDL_APP_FAILURE;
@@ -37,7 +47,7 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   }
 
   SDL_Texture *raw_texture =
-      SDL_CreateTexture(raw_renderer, SDL_PIXELFORMAT_ABGR8888,
+      SDL_CreateTexture(raw_renderer, SDL_PIXELFORMAT_ARGB8888,
                         SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 
   state->window.reset(raw_window);
@@ -61,6 +71,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
   auto *state = static_cast<AppState *>(appstate);
+
+  draw_scene(*state->buffer);
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));

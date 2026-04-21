@@ -1,11 +1,12 @@
-#include "color.hpp"
+#pragma once
+
 #include "config.hpp"
 #include <array>
 
 struct FrameBuffer {
   std::array<Color, WIDTH * HEIGHT> pixels{};
 
-  void set_color(int x, int y, Color color) {
+  void set(int x, int y, Color color) {
     if (out_of_bounds(x, y)) {
       return;
     }
