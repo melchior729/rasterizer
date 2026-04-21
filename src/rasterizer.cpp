@@ -7,12 +7,12 @@ void draw_point(FrameBuffer &buffer, Vec2 p, Color color) {
 }
 
 static float get_determinant(Vec2 a, Vec2 b, Vec2 c) {
-  return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (b.y - a.y);
+  return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 }
 
 void draw_triangle(FrameBuffer &buffer, Vec2 a, Vec2 b, Vec2 c, Color color) {
   float det{get_determinant(a, b, c)};
-  if (det < 1e-7) {
+  if (std::abs(det) < 1e-7) {
     return;
   }
 
