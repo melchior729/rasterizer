@@ -1,11 +1,11 @@
 #define SDL_MAIN_USE_CALLBACKS 1
-#include "config.hpp"
-#include "frame_buffer.hpp"
+#include "../include/color.hpp"
+#include "../include/config.hpp"
+#include "../include/frame_buffer.hpp"
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
-#include <cstdint>
 #include <memory>
 
 struct SDL_Deleter {
@@ -63,8 +63,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   auto *state = static_cast<AppState *>(appstate);
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
-                    state->buffer.get()->pixels.data(),
-                    WIDTH * sizeof(uint32_t));
+                    state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));
 
   SDL_RenderClear(state->renderer.get());
   SDL_RenderTexture(state->renderer.get(), state->texture.get(), nullptr,
