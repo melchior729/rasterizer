@@ -2,16 +2,26 @@
 
 #include "config.hpp"
 #include <array>
+#include <limits>
 
 struct FrameBuffer {
   std::array<Color, WIDTH * HEIGHT> pixels{};
+  std::array<float, WIDTH * HEIGHT> depth{};
 
-  void set(int x, int y, Color color) {
+  FrameBuffer() { depth.fill(-std::numeric_limits<float>::infinity()); }
+
+  void set(int x, int y, float z, Color color) {
     if (out_of_bounds(x, y)) {
       return;
     }
 
-    pixels[y * WIDTH + x] = color;
+    auto i = static_cast<std::size_t>(y * WIDTH + x);
+    if (z >= depth[i] || z >= 0) {
+      return;
+    }
+
+    depth[i] = z;
+    pixels[i] = color;
   }
 
   static bool out_of_bounds(int x, int y) {

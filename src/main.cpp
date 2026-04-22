@@ -1,4 +1,5 @@
 #define SDL_MAIN_USE_CALLBACKS 1
+
 #include "color.hpp"
 #include "config.hpp"
 #include "frame_buffer.hpp"
@@ -24,14 +25,20 @@ struct AppState {
 };
 
 void draw_scene(FrameBuffer &buffer) {
-  Vec2 a{100, 100};
-  Vec2 b{960, 540};
-  Vec2 c{1820, 100};
+  Vec3 a{100, 100, -5};
+  Vec3 b{960, 540, -5};
+  Vec3 c{1820, 100, -5};
+
+  Vec3 d{100, 100, -5};
+  Vec3 e{960, 540, -5};
+  Vec3 f{1820, 100, -5};
 
   draw_triangle(buffer, a, b, c, RED);
+  draw_triangle(buffer, d, e, f, GREEN);
 }
 
-SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
+SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
+                          [[maybe_unused]] char *argv[]) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
     return SDL_APP_FAILURE;
   }
@@ -61,7 +68,8 @@ SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
   return SDL_APP_CONTINUE;
 }
 
-SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
+// remove maybe unused when implementing input
+SDL_AppResult SDL_AppEvent([[maybe_unused]] void *appstate, SDL_Event *event) {
   if (event->type == SDL_EVENT_QUIT) {
     return SDL_APP_SUCCESS;
   }
@@ -85,7 +93,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   return SDL_APP_CONTINUE;
 }
 
-void SDL_AppQuit(void *appstate, SDL_AppResult result) {
+void SDL_AppQuit(void *appstate, [[maybe_unused]] SDL_AppResult result) {
   if (appstate != nullptr) {
     std::unique_ptr<AppState> state{static_cast<AppState *>(appstate)};
   }

@@ -13,3 +13,12 @@ target_include_directories(main PUBLIC include)
 find_package(SDL3 REQUIRED)
 target_link_libraries(main PRIVATE SDL3::SDL3)
 target_compile_definitions(main PRIVATE SDL_MAIN_USE_CALLBACKS)
+
+target_compile_options(main PRIVATE
+    -pedantic-errors
+    -Wall
+    -Wextra
+    -Werror
+    -Wconversion
+    -Wsign-conversion
+)
