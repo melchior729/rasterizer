@@ -1,5 +1,6 @@
 #pragma once
 
+#include "SDL3/SDL_log.h"
 #include "color.hpp"
 
 inline constexpr int WIDTH{1920};

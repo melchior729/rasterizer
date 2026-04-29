@@ -1,8 +1,9 @@
 #include "rasterizer.hpp"
 #include "algorithm"
 
-void draw_point(FrameBuffer &buffer, Vec3 p, Color color) {
-  buffer.set(static_cast<int>(p.x), static_cast<int>(p.y), p.z, color);
+void draw_point(FrameBuffer &buffer, Vertex p) {
+  buffer.set(static_cast<int>(p.pos.x), static_cast<int>(p.pos.y), p.pos.z,
+             p.color);
 }
 
 static float get_determinant(Vec3 a, Vec3 b, Vec3 c) {
@@ -10,34 +11,51 @@ static float get_determinant(Vec3 a, Vec3 b, Vec3 c) {
 }
 
 // user must provide A, B, C, in CCW
-void draw_triangle(FrameBuffer &buffer, Vec3 a, Vec3 b, Vec3 c, Color color) {
-  float det{get_determinant(a, b, c)};
+void draw_triangle(FrameBuffer &buffer, Vertex a, Vertex b, Vertex c) {
+  // arguable : pull out the POS for each.
+  float det{get_determinant({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y},
+                            {c.pos.x, c.pos.y})};
   if (det < 1e-7) {
     return;
   }
 
   float inv_det{1.0f / det};
-  int min_x{static_cast<int>(std::min({a.x, b.x, c.x}))};
-  int min_y{static_cast<int>(std::min({a.y, b.y, c.y}))};
-  int max_x{static_cast<int>(std::max({a.x, b.x, c.x}))};
-  int max_y{static_cast<int>(std::max({a.y, b.y, c.y}))};
+  int min_x{static_cast<int>(std::min({a.pos.x, b.pos.x, c.pos.x}))};
+  int min_y{static_cast<int>(std::min({a.pos.y, b.pos.y, c.pos.y}))};
+  int max_x{static_cast<int>(std::max({a.pos.x, b.pos.x, c.pos.x}))};
+  int max_y{static_cast<int>(std::max({a.pos.y, b.pos.y, c.pos.y}))};
 
   for (int i = min_x; i < max_x; i++) {
     for (int j = min_y; j < max_y; j++) {
-      Vec3 p{static_cast<float>(i), static_cast<float>(j)};
+      Vertex p{{static_cast<float>(i), static_cast<float>(j)}};
 
-      float u{get_determinant(p, b, c) * inv_det};
-      float v{get_determinant(a, p, c) * inv_det};
-      float w{get_determinant(a, b, p) * inv_det};
+      float u{get_determinant(p.pos, b.pos, c.pos) * inv_det};
+      float v{get_determinant(a.pos, p.pos, c.pos) * inv_det};
+      float w{get_determinant(a.pos, b.pos, p.pos) * inv_det};
 
       if (u < 0 || v < 0 || w < 0) {
         continue;
       }
 
-      float z{a.z * u + b.z * v + c.z * w};
-      p.z = z;
+      float z{a.pos.z * u + b.pos.z * v + c.pos.z * w};
+      p.pos.z = z;
 
-      draw_point(buffer, p, color);
+      auto alpha{static_cast<uint32_t>(a.color.a() * u + b.color.a() * v +
+                                       c.color.a() * w)};
+
+      auto r{static_cast<uint32_t>(a.color.r() * u + b.color.r() * v +
+                                   c.color.r() * w)};
+
+      auto g{static_cast<uint32_t>(a.color.g() * u + b.color.g() * v +
+                                   c.color.g() * w)};
+
+      auto blue{static_cast<uint32_t>(a.color.b() * u + b.color.b() * v +
+                                      c.color.b() * w)};
+
+      Color color{alpha, r, g, blue};
+      p.color = color;
+
+      draw_point(buffer, p);
     }
   }
 }

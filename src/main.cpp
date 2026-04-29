@@ -19,11 +19,11 @@ struct AppState {
 };
 
 void draw_scene(FrameBuffer &buffer) {
-  Vec3 a{1820, 100, -5};
-  Vec3 b{960, 540, -5};
-  Vec3 c{100, 100, -5};
+  Vertex a{{1820, 100, -5}, RED};
+  Vertex b{{960, 540, -5}, BLUE};
+  Vertex c{{100, 100, -5}, GREEN};
 
-  draw_triangle(buffer, a, b, c, RED);
+  draw_triangle(buffer, a, b, c);
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
