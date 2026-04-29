@@ -12,7 +12,6 @@ static float get_determinant(Vec3 a, Vec3 b, Vec3 c) {
 
 // user must provide A, B, C, in CCW
 void draw_triangle(FrameBuffer &buffer, Vertex a, Vertex b, Vertex c) {
-  // arguable : pull out the POS for each.
   float det{get_determinant({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y},
                             {c.pos.x, c.pos.y})};
   if (det < 1e-7) {
@@ -52,9 +51,7 @@ void draw_triangle(FrameBuffer &buffer, Vertex a, Vertex b, Vertex c) {
       auto blue{static_cast<uint32_t>(a.color.b() * u + b.color.b() * v +
                                       c.color.b() * w)};
 
-      Color color{alpha, r, g, blue};
-      p.color = color;
-
+      p.color = {alpha, r, g, blue};
       draw_point(buffer, p);
     }
   }
