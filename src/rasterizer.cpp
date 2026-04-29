@@ -24,8 +24,8 @@ void draw_triangle(FrameBuffer &buffer, Vertex a, Vertex b, Vertex c) {
   int max_x{static_cast<int>(std::max({a.pos.x, b.pos.x, c.pos.x}))};
   int max_y{static_cast<int>(std::max({a.pos.y, b.pos.y, c.pos.y}))};
 
-  for (int i = min_x; i < max_x; i++) {
-    for (int j = min_y; j < max_y; j++) {
+  for (int i{min_x}; i < max_x; i++) {
+    for (int j{min_y}; j < max_y; j++) {
       Vertex p{{static_cast<float>(i), static_cast<float>(j)}};
 
       float u{get_determinant(p.pos, b.pos, c.pos) * inv_det};
