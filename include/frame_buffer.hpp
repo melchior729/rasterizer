@@ -24,7 +24,7 @@ struct FrameBuffer {
     pixels[i] = color;
   }
 
-  static bool out_of_bounds(int x, int y) {
+  bool out_of_bounds(int x, int y) const {
     return (x < 0 || x >= WIDTH || y < 0 || y >= HEIGHT);
   }
 };
