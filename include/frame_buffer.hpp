@@ -16,7 +16,7 @@ struct FrameBuffer {
     }
 
     auto i = static_cast<std::size_t>(y * WIDTH + x);
-    if (z >= depth[i] || z >= 0) {
+    if (z <= depth[i] || z >= 0) {
       return;
     }
 

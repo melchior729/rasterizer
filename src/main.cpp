@@ -1,12 +1,6 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 
-#include "color.hpp"
-#include "config.hpp"
-#include "frame_buffer.hpp"
-#include "math.hpp"
 #include "rasterizer.hpp"
-#include <SDL3/SDL.h>
-#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 #include <memory>
@@ -25,16 +19,11 @@ struct AppState {
 };
 
 void draw_scene(FrameBuffer &buffer) {
-  Vec3 a{100, 100, -5};
+  Vec3 a{1820, 100, -5};
   Vec3 b{960, 540, -5};
-  Vec3 c{1820, 100, -5};
-
-  Vec3 d{100, 100, -5};
-  Vec3 e{960, 540, -5};
-  Vec3 f{1820, 100, -5};
+  Vec3 c{100, 100, -5};
 
   draw_triangle(buffer, a, b, c, RED);
-  draw_triangle(buffer, d, e, f, GREEN);
 }
 
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
@@ -63,8 +52,8 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   state->buffer = std::make_unique<FrameBuffer>();
 
   SDL_SetRenderVSync(state->renderer.get(), 1);
-
   *appstate = state.release();
+
   return SDL_APP_CONTINUE;
 }
 
