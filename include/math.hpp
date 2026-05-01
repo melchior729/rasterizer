@@ -14,6 +14,13 @@ struct Vec3 {
   float z{};
 };
 
+struct Vec4 {
+  float x{};
+  float y{};
+  float z{};
+  float w{1};
+};
+
 struct Mat4 {
   std::array<float, 16> m{};
 
@@ -29,13 +36,17 @@ struct Mat4 {
 
   Mat4 operator*(Mat4 other) const;
 
-  Vec3 operator*(Vec3 v) const {
-    // TODO wrap in 4d vector
-    return {
-        m[0] * v.x + m[4] * v.y + m[8] * v.z,
-        m[1] * v.x + m[5] * v.y + m[9] * v.z,
-        m[2] * v.x + m[6] * v.y + m[10] * v.z,
-    };
+  Vec4 operator*(Vec3 v) const {
+    return {m[0] * v.x + m[4] * v.y + m[8] * v.z,
+            m[1] * v.x + m[5] * v.y + m[9] * v.z,
+            m[2] * v.x + m[6] * v.y + m[10] * v.z, 1};
+  }
+
+  Vec4 operator*(Vec4 v) const {
+    return {m[0] * v.x + m[4] * v.y + m[8] * v.z + m[12] * v.w,
+            m[1] * v.x + m[5] * v.y + m[9] * v.z + m[13] * v.w,
+            m[2] * v.x + m[6] * v.y + m[10] * v.z + m[14] * v.w,
+            m[3] * v.x + m[7] * v.y + m[11] * v.z + m[15] * v.w};
   }
 };
 

@@ -6,8 +6,6 @@
 #include <SDL3/SDL_render.h>
 #include <memory>
 
-static int count = 0;
-
 struct SDL_Deleter {
   void operator()(SDL_Window *w) const { SDL_DestroyWindow(w); }
   void operator()(SDL_Renderer *r) const { SDL_DestroyRenderer(r); }
@@ -21,7 +19,6 @@ struct AppState {
   std::unique_ptr<FrameBuffer> buffer{};
 };
 
-// AI Generated Scene
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
                           [[maybe_unused]] char *argv[]) {
   if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -66,10 +63,6 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   auto *state = static_cast<AppState *>(appstate);
 
   draw_scene(*state->buffer);
-  count++;
-  if (count == 1) {
-    return SDL_APP_SUCCESS;
-  }
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));

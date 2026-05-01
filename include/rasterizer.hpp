@@ -4,10 +4,10 @@
 #include "math.hpp"
 
 struct Vertex {
-  Vec3 pos{};
+  Vec4 pos{};
   Color color{};
 };
 
-void draw_point(FrameBuffer &buffer, Vertex p);
+void point(FrameBuffer &buffer, Vertex p);
 
-void draw_triangle(FrameBuffer &buffer, Vertex a, Vertex b, Vertex c);
+void triangle(FrameBuffer &buffer, Vertex a, Vertex b, Vertex c);

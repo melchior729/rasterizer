@@ -2,18 +2,17 @@
 #include <cmath>
 
 Mat4 mat4_multiply(Mat4 a, Mat4 b) {
+  constexpr size_t WIDTH{4};
   Mat4 m{identity()};
-
-  for (std::size_t i = 0; i < 4; i++) {
-    for (std::size_t j = 0; j < 4; j++) {
+  for (std::size_t i{0}; i < WIDTH; i++) {
+    for (std::size_t j{0}; j < WIDTH; j++) {
       float sum{};
-      for (std::size_t k = 0; k < 4; k++) {
-        sum += a(k * 4 + i) + b(j * 4 + k);
+      for (std::size_t k{0}; k < WIDTH; k++) {
+        sum += a(i, k) * b(k, j);
       }
-      m(4 * j + i) = sum;
+      m(i, j) = sum;
     }
   }
-
   return m;
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 
+// TODO: Remove this import when the rasterizer is complete
 #include "SDL3/SDL_log.h"
 #include "color.hpp"
 
