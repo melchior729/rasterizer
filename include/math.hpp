@@ -20,6 +20,11 @@ struct Vec3 {
   Vec3 operator-(Vec3 v) {
     return {this->x - v.x, this->y - v.y, this->z - v.z};
   }
+
+  Vec3 operator*(Vec3 v) {
+    return {this->y * v.z - this->z * v.y, this->z * v.x - this->x * v.z,
+            this->x * v.y - this->y * v.x};
+  }
 };
 
 struct Vec4 {
