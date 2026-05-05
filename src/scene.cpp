@@ -1,5 +1,5 @@
 #include "../include/scene.hpp"
-#include "../include/math.hpp"
+// #include "../include/math.hpp"
 #include "rasterizer.hpp"
 
 void draw_scene(FrameBuffer &buffer) {
@@ -32,7 +32,9 @@ void draw_scene(FrameBuffer &buffer) {
     Vec4 x{t * v.pos};
     v.pos = x;
 
-    // TODO: implement projection matrix
+    // temporary NDC coords
+    v.pos.x = (v.pos.x + 1) * WIDTH / 2;
+    v.pos.y = (v.pos.y + 1) * WIDTH / 2;
   }
 
   lbn = vertices[0];
@@ -44,27 +46,27 @@ void draw_scene(FrameBuffer &buffer) {
   rtf = vertices[6];
   ltf = vertices[7];
 
-  // FRONT  (z = -1, normal points toward -z, i.e. toward viewer)
+  // FRONT
   triangle(buffer, face(lbn, red), face(rbn, red), face(rtn, red));
   triangle(buffer, face(lbn, red), face(rtn, red), face(ltn, red));
 
-  // BACK   (z = +1, normal points toward +z)
+  // BACK
   triangle(buffer, face(rbf, orange), face(lbf, orange), face(ltf, orange));
   triangle(buffer, face(rbf, orange), face(ltf, orange), face(rtf, orange));
 
-  // LEFT   (x = -1, normal points toward -x)
+  // LEFT
   triangle(buffer, face(lbf, yellow), face(lbn, yellow), face(ltn, yellow));
   triangle(buffer, face(lbf, yellow), face(ltn, yellow), face(ltf, yellow));
 
-  // RIGHT  (x = +1, normal points toward +x)
+  // RIGHT
   triangle(buffer, face(rbn, green), face(rbf, green), face(rtf, green));
   triangle(buffer, face(rbn, green), face(rtf, green), face(rtn, green));
 
-  // BOTTOM (y = -1, normal points toward -y)
+  // BOTTOM
   triangle(buffer, face(lbf, blue), face(rbf, blue), face(rbn, blue));
   triangle(buffer, face(lbf, blue), face(rbn, blue), face(lbn, blue));
 
-  // TOP    (y = +1, normal points toward +y)
+  // TOP
   triangle(buffer, face(ltn, violet), face(rtn, violet), face(rtf, violet));
   triangle(buffer, face(ltn, violet), face(rtf, violet), face(ltf, violet));
 }
