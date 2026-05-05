@@ -1,16 +1,15 @@
 #include "../include/scene.hpp"
-// #include "../include/math.hpp"
 #include "rasterizer.hpp"
 
 void draw_scene(FrameBuffer &buffer) {
-  Vertex lbn = {{-1, -1, -1}}; // left  bottom near
-  Vertex rbn = {{1, -1, -1}};  // right bottom near
-  Vertex rtn = {{1, 1, -1}};   // right top    near
-  Vertex ltn = {{-1, 1, -1}};  // left  top    near
-  Vertex lbf = {{-1, -1, 1}};  // left  bottom far
-  Vertex rbf = {{1, -1, 1}};   // right bottom far
-  Vertex rtf = {{1, 1, 1}};    // right top    far
-  Vertex ltf = {{-1, 1, 1}};   // left  top    far
+  Vertex lbn = {{-1, -1, 1}};  // left  bottom near
+  Vertex rbn = {{1, -1, 1}};   // right bottom near
+  Vertex rtn = {{1, 1, 1}};    // right top    near
+  Vertex ltn = {{-1, 1, 1}};   // left  top    near
+  Vertex lbf = {{-1, -1, -1}}; // left  bottom far
+  Vertex rbf = {{1, -1, -1}};  // right bottom far
+  Vertex rtf = {{1, 1, -1}};   // right top    far
+  Vertex ltf = {{-1, 1, -1}};  // left  top    far
 
   Color red = {255, 220, 50, 50};
   Color orange = {255, 230, 140, 40};
@@ -56,8 +55,8 @@ void draw_scene(FrameBuffer &buffer) {
   triangle(buffer, face(lbn, red), face(rtn, red), face(ltn, red));
 
   // BACK
-  triangle(buffer, face(rbf, orange), face(lbf, orange), face(ltf, orange));
-  triangle(buffer, face(rbf, orange), face(ltf, orange), face(rtf, orange));
+  triangle(buffer, face(ltf, orange), face(lbf, orange), face(rbf, orange));
+  triangle(buffer, face(ltf, orange), face(rtf, orange), face(rbf, orange));
 
   // LEFT
   triangle(buffer, face(lbf, yellow), face(lbn, yellow), face(ltn, yellow));
