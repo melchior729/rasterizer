@@ -19,6 +19,14 @@ struct Vec4 {
   float y{};
   float z{};
   float w{1};
+
+  Vec4 operator+(Vec4 v) {
+    return {this->x + v.x, this->y + v.y, this->z + v.z, this->w + v.w};
+  }
+
+  Vec4 operator-(Vec4 v) {
+    return {this->x - v.x, this->y - v.y, this->z - v.z, this->w - v.w};
+  }
 };
 
 struct Mat4 {
