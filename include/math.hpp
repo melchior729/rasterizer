@@ -62,10 +62,12 @@ inline Mat4 Mat4::operator*(Mat4 other) const {
 
 Mat4 translate(Vec3 t);
 
-Mat4 scale(Vec3 t);
+Mat4 scale(Vec3 s);
 
-Mat4 rot_x(Vec3 t);
+Mat4 rot_x(float theta);
 
-Mat4 rot_y(Vec3 t);
+Mat4 rot_y(float theta);
 
-Mat4 rot_z(Vec3 t);
+Mat4 rot_z(float theta);
+
+Mat4 project();

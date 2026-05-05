@@ -26,11 +26,16 @@ void draw_scene(FrameBuffer &buffer) {
 
   Vertex vertices[]{lbn, rbn, rtn, ltn, lbf, rbf, rtf, ltf};
 
-  Mat4 t = translate({0, 0, -10});
+  Mat4 t = translate({0, 0, -100});
+  Mat4 projection = project();
 
   for (auto &v : vertices) {
     Vec4 x{t * v.pos};
     v.pos = x;
+
+    v.pos = projection * v.pos;
+    v.pos.x /= v.pos.w;
+    v.pos.y /= v.pos.w;
 
     // temporary NDC coords
     v.pos.x = (v.pos.x + 1) * WIDTH / 2;

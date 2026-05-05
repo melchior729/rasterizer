@@ -51,3 +51,10 @@ Mat4 rot_x(float theta) { return rotate(theta, 5, 9, 6, 10); }
 Mat4 rot_y(float theta) { return rotate(theta, 0, 8, 2, 10); }
 
 Mat4 rot_z(float theta) { return rotate(theta, 0, 4, 1, 2); }
+
+Mat4 project() {
+  Mat4 i{identity()};
+  i(11) = 1;
+  i(15) = 0;
+  return i;
+}
