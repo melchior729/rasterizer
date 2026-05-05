@@ -3,8 +3,8 @@
 #include "math.hpp"
 
 struct Camera {
-  Vec4 pos;
-  Vec4 target;
+  Vec3 pos;
+  Vec3 target;
   Vec3 up{0, 1, 0};
 
   // Mat4 view() {
