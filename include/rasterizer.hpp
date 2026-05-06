@@ -1,12 +1,7 @@
 #pragma once
 
 #include "frame_buffer.hpp"
-#include "math.hpp"
-
-struct Vertex {
-  Vec4 pos{};
-  Color color{};
-};
+#include "model.hpp"
 
 void point(FrameBuffer &buffer, Vertex p);
 

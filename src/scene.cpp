@@ -1,7 +1,7 @@
 #include "scene.hpp"
 #include "rasterizer.hpp"
 
-// could make camera just the view matrix itself?
+// TODO could make camera just the view matrix itself?
 void draw_scene(FrameBuffer &buffer, Camera &camera) {
   Vertex lbn = {{-1, -1, 1}};  // left  bottom near
   Vertex rbn = {{1, -1, 1}};   // right bottom near
@@ -26,17 +26,22 @@ void draw_scene(FrameBuffer &buffer, Camera &camera) {
 
   Vertex vertices[]{lbn, rbn, rtn, ltn, lbf, rbf, rtf, ltf};
 
-  Mat4 t = translate({0, 0, -10});
+  Mat4 t = translate({0, 0, -30});
+  Mat4 r = rot_y(0.78f);
+  Mat4 s = scale({2, 2, 2});
+  Mat4 model = s * r * t;
+
   Mat4 view = camera.view();
   Mat4 projection = project();
 
   for (auto &v : vertices) {
-    v.pos = t * v.pos;
+    v.pos = model * v.pos;
     v.pos = view * v.pos;
     v.pos = projection * v.pos;
 
     v.pos.x /= v.pos.w;
     v.pos.y /= v.pos.w;
+    v.pos.z /= v.pos.w;
 
     v.pos.x = (v.pos.x + 1) * WIDTH / 2;
     v.pos.y = (1 - v.pos.y) * HEIGHT / 2;

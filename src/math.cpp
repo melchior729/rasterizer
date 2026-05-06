@@ -55,7 +55,7 @@ Mat4 rot_z(float theta) { return rotate(theta, 0, 4, 1, 2); }
 
 Mat4 project() {
   Mat4 i{identity()};
-  // TODO LEARN THESE ONES
+  // TODO LEARN THESE ONES, also replace with cot
   i(0) = 1.0f / (ASPECT * std::tan(FOV / 2.0f));
   i(5) = 1.0f / (std::tan(FOV / 2.0f));
   i(10) = -(FAR + NEAR) / (FAR - NEAR);
