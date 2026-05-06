@@ -1,7 +1,9 @@
-#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_keycode.h>
 #define SDL_MAIN_USE_CALLBACKS 1
 
-#include "../include/scene.hpp"
+#include "camera.hpp"
+#include "scene.hpp"
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 #include <memory>
@@ -17,6 +19,7 @@ struct AppState {
   std::unique_ptr<SDL_Renderer, SDL_Deleter> renderer{};
   std::unique_ptr<SDL_Texture, SDL_Deleter> texture{};
   std::unique_ptr<FrameBuffer> buffer{};
+  std::unique_ptr<Camera> camera{};
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
@@ -43,6 +46,7 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   state->renderer.reset(raw_renderer);
   state->texture.reset(raw_texture);
   state->buffer = std::make_unique<FrameBuffer>();
+  state->camera = std::make_unique<Camera>();
 
   SDL_SetRenderVSync(state->renderer.get(), 1);
   *appstate = state.release();
@@ -50,10 +54,27 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   return SDL_APP_CONTINUE;
 }
 
-// remove maybe unused when implementing input
-SDL_AppResult SDL_AppEvent([[maybe_unused]] void *appstate, SDL_Event *event) {
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
+  auto *state = static_cast<AppState *>(appstate);
   if (event->type == SDL_EVENT_QUIT) {
     return SDL_APP_SUCCESS;
+  }
+
+  if (event->type == SDL_EVENT_KEY_DOWN) {
+    switch (event->key.key) {
+    case SDLK_W:
+      state->camera->pos.z -= 1;
+      break;
+    case SDLK_S:
+      state->camera->pos.z += 1;
+      break;
+    case SDLK_A:
+      state->camera->pos.x -= 1;
+      break;
+    case SDLK_D:
+      state->camera->pos.x += 1;
+      break;
+    }
   }
 
   return SDL_APP_CONTINUE;
@@ -61,8 +82,10 @@ SDL_AppResult SDL_AppEvent([[maybe_unused]] void *appstate, SDL_Event *event) {
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
   auto *state = static_cast<AppState *>(appstate);
+  auto &camera = *state->camera;
+  state->buffer->clear();
 
-  draw_scene(*state->buffer);
+  draw_scene(*state->buffer, camera);
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));

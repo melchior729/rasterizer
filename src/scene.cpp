@@ -1,7 +1,8 @@
-#include "../include/scene.hpp"
+#include "scene.hpp"
 #include "rasterizer.hpp"
 
-void draw_scene(FrameBuffer &buffer) {
+// could make camera just the view matrix itself?
+void draw_scene(FrameBuffer &buffer, Camera &camera) {
   Vertex lbn = {{-1, -1, 1}};  // left  bottom near
   Vertex rbn = {{1, -1, 1}};   // right bottom near
   Vertex rtn = {{1, 1, 1}};    // right top    near
@@ -25,20 +26,20 @@ void draw_scene(FrameBuffer &buffer) {
 
   Vertex vertices[]{lbn, rbn, rtn, ltn, lbf, rbf, rtf, ltf};
 
-  Mat4 t = translate({0, 0, -100});
+  Mat4 t = translate({0, 0, -10});
+  Mat4 view = camera.view();
   Mat4 projection = project();
 
   for (auto &v : vertices) {
-    Vec4 x{t * v.pos};
-    v.pos = x;
-
+    v.pos = t * v.pos;
+    v.pos = view * v.pos;
     v.pos = projection * v.pos;
+
     v.pos.x /= v.pos.w;
     v.pos.y /= v.pos.w;
 
-    // temporary NDC coords
     v.pos.x = (v.pos.x + 1) * WIDTH / 2;
-    v.pos.y = (v.pos.y + 1) * WIDTH / 2;
+    v.pos.y = (1 - v.pos.y) * HEIGHT / 2;
   }
 
   lbn = vertices[0];

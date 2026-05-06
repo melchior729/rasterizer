@@ -1,4 +1,5 @@
-#include "../include/math.hpp"
+#include "math.hpp"
+#include "config.hpp"
 #include <cmath>
 
 Mat4 mat4_multiply(Mat4 a, Mat4 b) {
@@ -54,7 +55,12 @@ Mat4 rot_z(float theta) { return rotate(theta, 0, 4, 1, 2); }
 
 Mat4 project() {
   Mat4 i{identity()};
-  i(11) = 1;
+  // TODO LEARN THESE ONES
+  i(0) = 1.0f / (ASPECT * std::tan(FOV / 2.0f));
+  i(5) = 1.0f / (std::tan(FOV / 2.0f));
+  i(10) = -(FAR + NEAR) / (FAR - NEAR);
+  i(11) = -1;
+  i(14) = -(2 * NEAR * FAR) / (FAR - NEAR);
   i(15) = 0;
   return i;
 }

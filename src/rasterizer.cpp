@@ -14,7 +14,7 @@ static float det(Vec4 a, Vec4 b, Vec4 c) {
 void triangle(FrameBuffer &buffer, Vertex a, Vertex b, Vertex c) {
   float det_val{
       det({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y}, {c.pos.x, c.pos.y})};
-  if (det_val < 1e-7) {
+  if (det_val > 1e-7) {
     return;
   }
 

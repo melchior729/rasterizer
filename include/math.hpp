@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cassert>
+#include <cmath>
 
 struct Vec2 {
   float x{};
@@ -13,19 +14,23 @@ struct Vec3 {
   float y{};
   float z{};
 
-  Vec3 operator+(Vec3 v) {
-    return {this->x + v.x, this->y + v.y, this->z + v.z};
+  Vec3 operator+(Vec3 v) { return {x + v.x, y + v.y, z + v.z}; }
+
+  Vec3 operator-(Vec3 v) { return {x - v.x, y - v.y, z - v.z}; }
+
+  Vec3 cross(Vec3 v) {
+    return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
   }
 
-  Vec3 operator-(Vec3 v) {
-    return {this->x - v.x, this->y - v.y, this->z - v.z};
-  }
+  float dot(Vec3 v) { return x * v.x + y * v.y + z * v.z; }
 
-  Vec3 operator*(Vec3 v) {
-    return {this->y * v.z - this->z * v.y, this->z * v.x - this->x * v.z,
-            this->x * v.y - this->y * v.x};
-  }
+  float len() { return std::sqrt(x * x + y * y + z * z); }
 };
+
+inline Vec3 norm(Vec3 v) {
+  float len = v.len();
+  return {v.x / len, v.y / len, v.z / len};
+}
 
 struct Vec4 {
   float x{};
