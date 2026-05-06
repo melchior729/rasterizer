@@ -7,7 +7,7 @@ struct Camera {
   Vec3 target{0, 0, -100};
   Vec3 up{0, 1, 0};
 
-  Mat4 view() {
+  Mat4 view() const {
     Vec3 f{norm(pos - target)};
     Vec3 r{up.cross(f)};
     Vec3 u{f.cross(r)};

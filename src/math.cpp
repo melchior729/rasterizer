@@ -2,9 +2,10 @@
 #include "config.hpp"
 #include <cmath>
 
-Mat4 mat4_multiply(Mat4 a, Mat4 b) {
+Mat4 mat4_multiply(const Mat4 &a, const Mat4 &b) {
   constexpr size_t WIDTH{4};
   Mat4 m{identity()};
+
   for (std::size_t i{0}; i < WIDTH; i++) {
     for (std::size_t j{0}; j < WIDTH; j++) {
       float sum{};
@@ -14,10 +15,11 @@ Mat4 mat4_multiply(Mat4 a, Mat4 b) {
       m(i, j) = sum;
     }
   }
+
   return m;
 }
 
-Mat4 translate(Vec3 t) {
+Mat4 translate(const Vec3 &t) {
   Mat4 i{identity()};
   i(12) = t.x;
   i(13) = t.y;
@@ -25,7 +27,7 @@ Mat4 translate(Vec3 t) {
   return i;
 }
 
-Mat4 scale(Vec3 s) {
+Mat4 scale(const Vec3 &s) {
   Mat4 i{identity()};
   i(0) = s.x;
   i(5) = s.y;

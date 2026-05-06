@@ -10,6 +10,7 @@ struct FrameBuffer {
 
   FrameBuffer() { clear(); }
 
+  // TODO color should be removed
   void set(int x, int y, float z, Color color) {
     if (out_of_bounds(x, y)) {
       return;

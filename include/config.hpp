@@ -8,6 +8,7 @@
 inline constexpr int WIDTH{1920};
 inline constexpr int HEIGHT{1080};
 inline constexpr float ASPECT{static_cast<float>(WIDTH) / HEIGHT};
+
 inline constexpr float FOV{std::numbers::pi_v<float> / 2.0f};
 inline constexpr float NEAR{0.1f};
 inline constexpr float FAR{1000.0f};

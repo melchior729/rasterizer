@@ -3,28 +3,25 @@
 
 // TODO could make camera just the view matrix itself?
 void draw_scene(FrameBuffer &buffer, Camera &camera) {
-  Vertex lbn = {{-1, -1, 1}};  // left  bottom near
-  Vertex rbn = {{1, -1, 1}};   // right bottom near
-  Vertex rtn = {{1, 1, 1}};    // right top    near
-  Vertex ltn = {{-1, 1, 1}};   // left  top    near
-  Vertex lbf = {{-1, -1, -1}}; // left  bottom far
-  Vertex rbf = {{1, -1, -1}};  // right bottom far
-  Vertex rtf = {{1, 1, -1}};   // right top    far
-  Vertex ltf = {{-1, 1, -1}};  // left  top    far
+  Color red = {255, 255, 0, 0};
+  Color green = {255, 0, 255, 0};
+  Color blue = {255, 0, 0, 255};
+  Color yellow = {255, 255, 255, 0};
+  Color pink = {255, 255, 0, 255};
+  Color cyan = {255, 0, 255, 255};
+  Color white = {255, 255, 255, 255};
+  Color orange = {255, 255, 165, 0};
 
-  Color red = {255, 220, 50, 50};
-  Color orange = {255, 230, 140, 40};
-  Color yellow = {255, 220, 200, 50};
-  Color green = {255, 50, 180, 80};
-  Color blue = {255, 50, 100, 220};
-  Color violet = {255, 160, 60, 220};
-
-  auto face = [](Vertex v, Color c) -> Vertex {
-    v.color = c;
-    return v;
+  Vertex vertices[]{
+      {{-1, -1, 1}, red},   // lbn
+      {{1, -1, 1}, green},  // rbn
+      {{1, 1, 1}, blue},    // rtn
+      {{-1, 1, 1}, yellow}, // ltn
+      {{-1, -1, -1}, pink}, // lbf
+      {{1, -1, -1}, cyan},  // rbf
+      {{1, 1, -1}, white},  // rtf
+      {{-1, 1, -1}, orange} // ltf
   };
-
-  Vertex vertices[]{lbn, rbn, rtn, ltn, lbf, rbf, rtf, ltf};
 
   Mat4 t = translate({0, 0, -30});
   Mat4 r = rot_y(0.78f);
@@ -47,36 +44,36 @@ void draw_scene(FrameBuffer &buffer, Camera &camera) {
     v.pos.y = (1 - v.pos.y) * HEIGHT / 2;
   }
 
-  lbn = vertices[0];
-  rbn = vertices[1];
-  rtn = vertices[2];
-  ltn = vertices[3];
-  lbf = vertices[4];
-  rbf = vertices[5];
-  rtf = vertices[6];
-  ltf = vertices[7];
+  auto lbn = vertices[0];
+  auto rbn = vertices[1];
+  auto rtn = vertices[2];
+  auto ltn = vertices[3];
+  auto lbf = vertices[4];
+  auto rbf = vertices[5];
+  auto rtf = vertices[6];
+  auto ltf = vertices[7];
 
   // FRONT
-  triangle(buffer, face(lbn, red), face(rbn, red), face(rtn, red));
-  triangle(buffer, face(lbn, red), face(rtn, red), face(ltn, red));
+  triangle(buffer, lbn, rbn, rtn);
+  triangle(buffer, lbn, rtn, ltn);
 
   // BACK
-  triangle(buffer, face(ltf, orange), face(lbf, orange), face(rbf, orange));
-  triangle(buffer, face(ltf, orange), face(rtf, orange), face(rbf, orange));
+  triangle(buffer, ltf, lbf, rbf);
+  triangle(buffer, ltf, rtf, rbf);
 
   // LEFT
-  triangle(buffer, face(lbf, yellow), face(lbn, yellow), face(ltn, yellow));
-  triangle(buffer, face(lbf, yellow), face(ltn, yellow), face(ltf, yellow));
+  triangle(buffer, lbf, lbn, ltn);
+  triangle(buffer, lbf, ltn, ltf);
 
   // RIGHT
-  triangle(buffer, face(rbn, green), face(rbf, green), face(rtf, green));
-  triangle(buffer, face(rbn, green), face(rtf, green), face(rtn, green));
+  triangle(buffer, rbn, rbf, rtf);
+  triangle(buffer, rbn, rtf, rtn);
 
   // BOTTOM
-  triangle(buffer, face(lbf, blue), face(rbf, blue), face(rbn, blue));
-  triangle(buffer, face(lbf, blue), face(rbn, blue), face(lbn, blue));
+  triangle(buffer, lbf, rbf, rbn);
+  triangle(buffer, lbf, rbn, lbn);
 
   // TOP
-  triangle(buffer, face(ltn, violet), face(rtn, violet), face(rtf, violet));
-  triangle(buffer, face(ltn, violet), face(rtf, violet), face(ltf, violet));
+  triangle(buffer, ltn, rtn, rtf);
+  triangle(buffer, ltn, rtf, ltf);
 }

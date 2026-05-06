@@ -1,9 +1,10 @@
+// TODO this class should be eventually removed
 #pragma once
 
 #include <cstdint>
 
 struct Color {
-  uint32_t color;
+  uint32_t color{};
 
   constexpr Color() : color{0xFF000000} {}
 

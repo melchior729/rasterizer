@@ -5,15 +5,11 @@
 #include <vector>
 
 struct Vertex {
-  Vec4 pos{};
-  Color color{};
-};
-
-struct Face {
-  std::array<Vertex, 3> vertices{};
+  Vec4 pos;
+  Color color;
 };
 
 struct Mesh {
-  std::vector<Vertex> vertices{};
-  std::vector<Face> faces{};
+  std::vector<Vertex> vertices;
+  std::vector<std::array<int, 3>> faces;
 };
