@@ -23,6 +23,9 @@ void draw_scene(FrameBuffer &buffer, const Mat4 &view) {
   std::vector<Face> visible_faces{};
   std::vector<Color> colors{};
 
+  Vec4 light{light_dir.x, light_dir.y, light_dir.z, 0};
+  Vec3 view_light = norm((view * light).xyz());
+
   for (auto &f : cube.faces) {
     auto first = cube.vertices[f[0]];
     auto second = cube.vertices[f[1]];
@@ -32,7 +35,7 @@ void draw_scene(FrameBuffer &buffer, const Mat4 &view) {
     auto v{third.pos.sub_xyz(first.pos)};
     auto normal{norm(u.cross(v))};
 
-    auto g{normal.dot(norm(light_dir))};
+    auto g{normal.dot(view_light)};
     if (g < 0) {
       g = 0;
     }
