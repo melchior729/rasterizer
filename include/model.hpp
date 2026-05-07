@@ -51,18 +51,23 @@ struct Mesh {
         mesh.vertices.push_back({{x, y, z}, BLACK});
 
       } else if (first == "f") {
-        std::istringstream data(line);
-        data >> first;
-
-        std::size_t x;
-        std::size_t y;
-        std::size_t z;
-
-        data >> x;
-        data >> y;
-        data >> z;
-
-        mesh.faces.push_back({x - 1, y - 1, z - 1});
+        // read the string
+        //
+        // find the indices of first space, second, third
+        // x is between first and second,
+        // y is between scond and htird
+        // z is between third and end
+        //
+        // get the substrings between those indices - that the is actual token
+        // make a list of these tokens
+        //
+        // make a list of actual values, size_t
+        // operate on each token
+        // if there is not a / in the token, convert to size t and then put it
+        // in the size t list if there is, get the substring to the left of the
+        // /, and then convert to size_t and put it in its list
+        //
+        // push back onto mesh's face of the values of size t list.
       } else {
         continue;
       }
