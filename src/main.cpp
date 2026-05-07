@@ -73,6 +73,24 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
     case SDLK_D:
       state->camera->pos.x += 1;
       break;
+    case SDLK_R:
+      state->camera->pos.y += 1;
+      break;
+    case SDLK_F:
+      state->camera->pos.y -= 1;
+      break;
+    case SDLK_U:
+      state->camera->target.x += 1;
+      break;
+    case SDLK_J:
+      state->camera->target.x -= 1;
+      break;
+    case SDLK_I:
+      state->camera->target.y += 1;
+      break;
+    case SDLK_K:
+      state->camera->target.y -= 1;
+      break;
     }
   }
 

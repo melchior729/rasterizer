@@ -38,7 +38,7 @@ struct Vec4 {
   float z{};
   float w{1};
 
-  Vec3 sub_xyz(const Vec4 &v) const { return {x - v.x, y - v.y, z - v.y}; }
+  Vec3 sub_xyz(const Vec4 &v) const { return {x - v.x, y - v.y, z - v.z}; }
 };
 
 struct Mat4 {
