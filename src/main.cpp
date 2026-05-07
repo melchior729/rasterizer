@@ -1,6 +1,6 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 
-#include "model.hpp"
+#include "camera.hpp"
 #include "scene.hpp"
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
@@ -84,7 +84,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   auto &camera = *state->camera;
   state->buffer->clear();
 
-  draw_scene(*state->buffer, camera);
+  draw_scene(*state->buffer, camera.view());
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));

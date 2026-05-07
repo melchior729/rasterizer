@@ -1,7 +1,6 @@
 #pragma once
 
 // TODO remove this after need for logging is gone
-// #include "config.hpp"
 
 #include "color.hpp"
 #include "config.hpp"
@@ -12,6 +11,7 @@
 #include <vector>
 
 constexpr std::string PATH_PREFIX{"models/"};
+using Face = std::array<std::size_t, 3>;
 
 struct Vertex {
   Vec4 pos;
@@ -20,7 +20,7 @@ struct Vertex {
 
 struct Mesh {
   std::vector<Vertex> vertices;
-  std::vector<std::array<std::size_t, 3>> faces;
+  std::vector<Face> faces;
 
   static Mesh load(const std::string &name) {
     Mesh mesh{};
