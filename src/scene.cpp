@@ -1,10 +1,12 @@
 #include "scene.hpp"
 #include "rasterizer.hpp"
+#include <algorithm>
 
 static constexpr Vec3 translation{0, 0, -20};
 static constexpr float theta{0.78f};
 static constexpr Vec3 scaling{2, 2, 2};
 static constexpr Vec3 light_dir{1, 1, 1};
+static constexpr float ambient{0.2f};
 
 void draw_scene(FrameBuffer &buffer, const Mat4 &view) {
   // TODO this should not be loaded each time, should be outside
@@ -35,14 +37,10 @@ void draw_scene(FrameBuffer &buffer, const Mat4 &view) {
     auto v{third.pos.sub_xyz(first.pos)};
     auto normal{norm(u.cross(v))};
 
-    auto g{normal.dot(view_light)};
-    if (g < 0) {
-      g = 0;
-    }
-
-    Color color{0xFF, static_cast<uint32_t>(WHITE.r() * g),
-                static_cast<uint32_t>(WHITE.g() * g),
-                static_cast<uint32_t>(WHITE.b() * g)};
+    auto brightness{std::clamp((normal.dot(view_light) + ambient), 0.0f, 1.0f)};
+    Color color{0xFF, static_cast<uint32_t>(WHITE.r() * brightness),
+                static_cast<uint32_t>(WHITE.g() * brightness),
+                static_cast<uint32_t>(WHITE.b() * brightness)};
 
     float val{normal.dot({0, 0, -1})};
     if (val < 0) {
