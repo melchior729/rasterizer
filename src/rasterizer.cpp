@@ -10,11 +10,10 @@ static float det(const Vec4 &a, const Vec4 &b, const Vec4 &c) {
   return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 }
 
-// user must provide A, B, C, in CCW
 void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c) {
   float det_val{
       det({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y}, {c.pos.x, c.pos.y})};
-  if (det_val > 1e-7) {
+  if (det_val < 1e-7) {
     return;
   }
 

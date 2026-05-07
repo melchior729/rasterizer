@@ -2,39 +2,20 @@
 #include "rasterizer.hpp"
 
 // TODO could make camera just the view matrix itself?
-void draw_scene(FrameBuffer &buffer, Camera &camera) {
-  Color red = {255, 255, 0, 0};
-  Color green = {255, 0, 255, 0};
-  Color blue = {255, 0, 0, 255};
-  Color yellow = {255, 255, 255, 0};
-  Color pink = {255, 255, 0, 255};
-  Color cyan = {255, 0, 255, 255};
-  Color white = {255, 255, 255, 255};
-  Color orange = {255, 255, 165, 0};
+void draw_scene(FrameBuffer &buffer, [[maybe_unused]] Camera &camera) {
+  // TODO this should not be loaded each time, shoudl be outside
+  Mesh cube{Mesh::load("cube.obj")};
 
-  Vertex vertices[]{
-      {{-1, -1, 1}, red},   // lbn
-      {{1, -1, 1}, green},  // rbn
-      {{1, 1, 1}, blue},    // rtn
-      {{-1, 1, 1}, yellow}, // ltn
-      {{-1, -1, -1}, pink}, // lbf
-      {{1, -1, -1}, cyan},  // rbf
-      {{1, 1, -1}, white},  // rtf
-      {{-1, 1, -1}, orange} // ltf
-  };
-
-  Mat4 t = translate({0, 0, -30});
+  Mat4 t = translate({0, 0, -20});
   Mat4 r = rot_y(0.78f);
   Mat4 s = scale({2, 2, 2});
-  Mat4 model = s * r * t;
+  Mat4 model = t * r * s;
 
   Mat4 view = camera.view();
   Mat4 projection = project();
 
-  for (auto &v : vertices) {
-    v.pos = model * v.pos;
-    v.pos = view * v.pos;
-    v.pos = projection * v.pos;
+  for (auto &v : cube.vertices) {
+    v.pos = projection * view * model * v.pos;
 
     v.pos.x /= v.pos.w;
     v.pos.y /= v.pos.w;
@@ -44,36 +25,22 @@ void draw_scene(FrameBuffer &buffer, Camera &camera) {
     v.pos.y = (1 - v.pos.y) * HEIGHT / 2;
   }
 
-  auto lbn = vertices[0];
-  auto rbn = vertices[1];
-  auto rtn = vertices[2];
-  auto ltn = vertices[3];
-  auto lbf = vertices[4];
-  auto rbf = vertices[5];
-  auto rtf = vertices[6];
-  auto ltf = vertices[7];
+  std::vector<Color> colors = {
+      {255, 255, 0, 0},   {255, 0, 255, 0},   {255, 0, 0, 255},
+      {255, 255, 255, 0}, {255, 255, 0, 255}, {255, 0, 255, 255},
+  };
 
-  // FRONT
-  triangle(buffer, lbn, rbn, rtn);
-  triangle(buffer, lbn, rtn, ltn);
+  for (std::size_t i = 0; i < cube.faces.size(); i++) {
+    auto &f = cube.faces[i];
+    auto first = cube.vertices[f[0]];
+    auto second = cube.vertices[f[1]];
+    auto third = cube.vertices[f[2]];
 
-  // BACK
-  triangle(buffer, ltf, lbf, rbf);
-  triangle(buffer, ltf, rtf, rbf);
+    Color c = colors[i / 2];
+    first.color = c;
+    second.color = c;
+    third.color = c;
 
-  // LEFT
-  triangle(buffer, lbf, lbn, ltn);
-  triangle(buffer, lbf, ltn, ltf);
-
-  // RIGHT
-  triangle(buffer, rbn, rbf, rtf);
-  triangle(buffer, rbn, rtf, rtn);
-
-  // BOTTOM
-  triangle(buffer, lbf, rbf, rbn);
-  triangle(buffer, lbf, rbn, lbn);
-
-  // TOP
-  triangle(buffer, ltn, rtn, rtf);
-  triangle(buffer, ltn, rtf, ltf);
+    triangle(buffer, first, third, second);
+  }
 }

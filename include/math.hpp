@@ -49,12 +49,12 @@ struct Mat4 {
 
   float &operator()(std::size_t i, std::size_t j) {
     assert(i < 4 && j < 4);
-    return m[i * 4 + j];
+    return m[j * 4 + i];
   }
 
   const float &operator()(std::size_t i, std::size_t j) const {
     assert(i < 4 && j < 4);
-    return m[i * 4 + j];
+    return m[j * 4 + i];
   }
 
   Mat4 operator*(const Mat4 &other) const;
