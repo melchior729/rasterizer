@@ -51,23 +51,31 @@ struct Mesh {
         mesh.vertices.push_back({{x, y, z}, BLACK});
 
       } else if (first == "f") {
-        // read the string
-        //
-        // find the indices of first space, second, third
-        // x is between first and second,
-        // y is between scond and htird
-        // z is between third and end
-        //
-        // get the substrings between those indices - that the is actual token
-        // make a list of these tokens
-        //
-        // make a list of actual values, size_t
-        // operate on each token
-        // if there is not a / in the token, convert to size t and then put it
-        // in the size t list if there is, get the substring to the left of the
-        // /, and then convert to size_t and put it in its list
-        //
-        // push back onto mesh's face of the values of size t list.
+
+        std::size_t second_space{line.find(" ", first_space + 1)};
+        std::size_t third_space{line.find(" ", second_space + 1)};
+
+        std::string x_str{
+            line.substr(first_space + 1, second_space - first_space - 1)};
+
+        std::string y_str{
+            line.substr(second_space + 1, third_space - second_space - 1)};
+
+        std::string z_str{
+            line.substr(third_space + 1, line.length() - third_space - 1)};
+
+        std::array<std::string, 3> tokens{x_str, y_str, z_str};
+        std::array<std::size_t, 3> vals;
+
+        for (std::size_t i = 0; i < 3; i++) {
+          auto &t{tokens[i]};
+          std::size_t slash{t.find("/")};
+
+          vals[i] = (slash == std::string::npos) ? stoull(t)
+                                                 : stoull(t.substr(0, slash));
+          vals[i]--;
+        }
+        mesh.faces.push_back({vals[0], vals[1], vals[2]});
       } else {
         continue;
       }
