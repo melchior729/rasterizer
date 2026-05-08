@@ -1,4 +1,5 @@
 #include "scene.hpp"
+#include "model.hpp"
 #include "rasterizer.hpp"
 #include <algorithm>
 
