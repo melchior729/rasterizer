@@ -102,7 +102,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   auto &camera = *state->camera;
   state->buffer->clear();
 
-  draw_scene(*state->buffer, camera.view());
+  draw_scene(*state->buffer, camera);
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));

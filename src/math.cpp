@@ -2,7 +2,7 @@
 #include "config.hpp"
 #include <cmath>
 
-Mat4 mat4_multiply(const Mat4 &a, const Mat4 &b) {
+Mat4 Mat4::operator*(const Mat4 &other) const {
   constexpr size_t WIDTH{4};
   Mat4 m{identity()};
 
@@ -10,7 +10,7 @@ Mat4 mat4_multiply(const Mat4 &a, const Mat4 &b) {
     for (std::size_t j{0}; j < WIDTH; j++) {
       float sum{};
       for (std::size_t k{0}; k < WIDTH; k++) {
-        sum += a(i, k) * b(k, j);
+        sum += (*this)(i, k) * other(k, j);
       }
       m(i, j) = sum;
     }

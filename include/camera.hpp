@@ -4,7 +4,7 @@
 
 struct Camera {
   Vec3 pos;
-  Vec3 target{0, 0, -100};
+  Vec3 target{0, 0, -1};
   Vec3 up{0, 1, 0};
 
   Mat4 view() const {

@@ -1,6 +1,6 @@
 #pragma once
 
+#include "camera.hpp"
 #include "frame_buffer.hpp"
-#include "math.hpp"
 
-void draw_scene(FrameBuffer &buffer, const Mat4 &view);
+void draw_scene(FrameBuffer &buffer, const Camera &camera);

@@ -81,12 +81,6 @@ constexpr Mat4 identity() {
   return {{1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1}};
 }
 
-Mat4 mat4_multiply(const Mat4 &a, const Mat4 &b);
-
-inline Mat4 Mat4::operator*(const Mat4 &other) const {
-  return mat4_multiply(*this, other);
-}
-
 Mat4 translate(const Vec3 &t);
 
 Mat4 scale(const Vec3 &s);
