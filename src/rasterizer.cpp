@@ -18,10 +18,14 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c) {
   }
 
   float inv_det{1.0f / det_val};
-  int min_x{static_cast<int>(std::min({a.pos.x, b.pos.x, c.pos.x}))};
-  int min_y{static_cast<int>(std::min({a.pos.y, b.pos.y, c.pos.y}))};
-  int max_x{static_cast<int>(std::max({a.pos.x, b.pos.x, c.pos.x}))};
-  int max_y{static_cast<int>(std::max({a.pos.y, b.pos.y, c.pos.y}))};
+  int min_x{std::clamp(static_cast<int>(std::min({a.pos.x, b.pos.x, c.pos.x})),
+                       0, WIDTH)};
+  int min_y{std::clamp(static_cast<int>(std::min({a.pos.y, b.pos.y, c.pos.y})),
+                       0, HEIGHT)};
+  int max_x{std::clamp(static_cast<int>(std::max({a.pos.x, b.pos.x, c.pos.x})),
+                       0, WIDTH)};
+  int max_y{std::clamp(static_cast<int>(std::max({a.pos.y, b.pos.y, c.pos.y})),
+                       0, HEIGHT)};
 
   for (int i{min_x}; i < max_x; i++) {
     for (int j{min_y}; j < max_y; j++) {

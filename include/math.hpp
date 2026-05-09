@@ -20,6 +20,10 @@ struct Vec3 {
 
   Vec3 operator-(const Vec3 &v) const { return {x - v.x, y - v.y, z - v.z}; }
 
+  bool operator==(const Vec3 &v) const {
+    return x == v.x && y == v.y && z == v.z;
+  }
+
   Vec3 cross(const Vec3 &v) const {
     return {y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x};
   }

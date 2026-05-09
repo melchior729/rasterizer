@@ -4,10 +4,13 @@
 
 struct Camera {
   Vec3 pos;
-  Vec3 target{0, 0, -1};
+  Vec3 target{0, 0, -1000};
   Vec3 up{0, 1, 0};
 
   Mat4 view() const {
+    assert(target != pos);
+
+    Mat4 i{identity()};
     Vec3 f{norm(pos - target)};
     Vec3 r{up.cross(f)};
     Vec3 u{f.cross(r)};
@@ -16,7 +19,6 @@ struct Camera {
     float ty{-pos.dot(u)};
     float tz{-pos.dot(f)};
 
-    Mat4 i{identity()};
     i(0) = r.x;
     i(4) = r.y;
     i(8) = r.z;
