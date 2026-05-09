@@ -7,6 +7,8 @@
 struct Vec2 {
   float x{};
   float y{};
+
+  static Vec2 none() { return {-1, -1}; }
 };
 
 struct Vec3 {

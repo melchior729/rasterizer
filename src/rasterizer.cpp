@@ -25,7 +25,8 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c) {
 
   for (int i{min_x}; i < max_x; i++) {
     for (int j{min_y}; j < max_y; j++) {
-      Vertex p{{static_cast<float>(i), static_cast<float>(j)}, BLACK};
+      // TODO empty Uv for now
+      Vertex p{{static_cast<float>(i), static_cast<float>(j)}, {}, {}, BLACK};
 
       float u{det(p.pos, b.pos, c.pos) * inv_det};
       float v{det(a.pos, p.pos, c.pos) * inv_det};
