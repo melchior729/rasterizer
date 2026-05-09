@@ -26,8 +26,9 @@ struct FrameBuffer {
   }
 
   void clear() {
+    Color bg{0xFF1E1E1E};
     depth.fill(std::numeric_limits<float>::infinity());
-    pixels.fill(BLUE);
+    pixels.fill(bg);
   }
 
   bool out_of_bounds(int x, int y) const {

@@ -8,6 +8,8 @@ struct Color {
 
   constexpr Color() : color{0xFF000000} {}
 
+  constexpr Color(uint32_t c) : color(c) {}
+
   constexpr Color(uint32_t a, uint32_t r, uint32_t g, uint32_t b)
       : color{(a << 24) | (r << 16) | (g << 8) | b} {}
 
