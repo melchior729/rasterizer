@@ -35,7 +35,7 @@ static void push_normal(std::vector<std::string> &tokens,
   float x{std::stof(tokens[1])};
   float y{std::stof(tokens[2])};
   float z{std::stof(tokens[3])};
-  normals.push_back({x, y, z});
+  normals.push_back(norm({x, y, z}));
 }
 
 static std::vector<std::string_view> get_entries(const std::string &str) {

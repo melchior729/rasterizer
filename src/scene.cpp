@@ -2,19 +2,21 @@
 #include "rasterizer.hpp"
 #include <algorithm>
 
-static constexpr Vec3 translation{0, -5, -10};
-static constexpr float theta{0};
-static constexpr Vec3 scaling{0.01f, 0.01f, 0.01f};
 static constexpr Vec3 light_dir{1, 1, 1};
-static constexpr float ambient{-1.2f};
+static constexpr float ambient{0.2f};
 
-static Mat4 t{translate(translation)};
-static Mat4 r{rot_x(theta)};
-static Mat4 s{scale(scaling)};
-static Mat4 model{t * r * s};
 static Mat4 projection{project()};
 
-static Mesh cube{Mesh::load("cow.obj")};
+static Mesh cube_mesh{Mesh::load("cube.obj")};
+static Mesh cow_mesh{Mesh::load("cow.obj")};
+
+static SceneObject cube{cube_mesh, {0, 0, -25}, {1.0f, 1.0f, 1.0f},
+                        0.0f,      1.78f,       0.0f};
+
+static SceneObject cow{cow_mesh, {0, -5, -50}, {0.01f, 0.01f, 0.01f},
+                       0.0f,     0.0f,         0.0f};
+
+static std::vector<SceneObject> objects{cube, cow};
 
 static void get_visible_faces_and_colors(const Camera &camera,
                                          const std::vector<Face> &faces,
@@ -23,7 +25,7 @@ static void get_visible_faces_and_colors(const Camera &camera,
                                          std::vector<Vertex> &vertices) {
 
   Vec4 light{light_dir.x, light_dir.y, light_dir.z, 0};
-  Vec3 looking{norm(camera.target - camera.pos)};
+  Vec3 looking{norm((camera.view() * (camera.target - camera.pos)).xyz())};
   Vec3 view_light = norm((camera.view() * light).xyz());
 
   for (auto &f : faces) {
@@ -80,17 +82,19 @@ static void draw_faces(FrameBuffer &buffer, const std::vector<Face> &faces,
 }
 
 void draw_scene(FrameBuffer &buffer, const Camera &camera) {
-  auto vertices{cube.vertices};
-  for (auto &v : vertices) {
-    v.pos = camera.view() * model * v.pos;
-    v.color = WHITE;
+  for (const auto &o : objects) {
+    auto vertices{o.mesh.vertices};
+    for (auto &v : vertices) {
+      v.pos = camera.view() * o.model * v.pos;
+      v.color = WHITE;
+    }
+
+    std::vector<Face> visible_faces{};
+    std::vector<Color> colors{};
+    get_visible_faces_and_colors(camera, o.mesh.faces, visible_faces, colors,
+                                 vertices);
+
+    perspective_divide_and_screen_space(vertices);
+    draw_faces(buffer, visible_faces, colors, vertices);
   }
-
-  std::vector<Face> visible_faces{};
-  std::vector<Color> colors{};
-  get_visible_faces_and_colors(camera, cube.faces, visible_faces, colors,
-                               vertices);
-
-  perspective_divide_and_screen_space(vertices);
-  draw_faces(buffer, visible_faces, colors, vertices);
 }
