@@ -18,8 +18,11 @@ struct AppState {
   std::unique_ptr<SDL_Renderer, SDL_Deleter> renderer{};
   std::unique_ptr<SDL_Texture, SDL_Deleter> texture{};
   std::unique_ptr<FrameBuffer> buffer{};
-  std::unique_ptr<Camera> camera{};
+  Camera camera;
 };
+
+static Vec3 light_dir{0, 1, 0};
+static constexpr float angle_increment{FOV / 4};
 
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
                           [[maybe_unused]] char *argv[]) {
@@ -45,7 +48,6 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   state->renderer.reset(raw_renderer);
   state->texture.reset(raw_texture);
   state->buffer = std::make_unique<FrameBuffer>();
-  state->camera = std::make_unique<Camera>();
 
   SDL_SetRenderVSync(state->renderer.get(), 1);
   *appstate = state.release();
@@ -62,34 +64,43 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   if (event->type == SDL_EVENT_KEY_DOWN) {
     switch (event->key.key) {
     case SDLK_W:
-      state->camera->pos.z -= 1;
+      state->camera.pos.z -= 1;
       break;
     case SDLK_S:
-      state->camera->pos.z += 1;
+      state->camera.pos.z += 1;
       break;
     case SDLK_A:
-      state->camera->pos.x -= 1;
+      state->camera.pos.x -= 1;
       break;
     case SDLK_D:
-      state->camera->pos.x += 1;
+      state->camera.pos.x += 1;
       break;
     case SDLK_R:
-      state->camera->pos.y += 1;
+      state->camera.pos.y += 1;
       break;
     case SDLK_F:
-      state->camera->pos.y -= 1;
-      break;
-    case SDLK_U:
-      state->camera->target.x += 1;
+      state->camera.pos.y -= 1;
       break;
     case SDLK_J:
-      state->camera->target.x -= 1;
-      break;
-    case SDLK_I:
-      state->camera->target.y += 1;
+      state->camera.target.x -= 1;
       break;
     case SDLK_K:
-      state->camera->target.y -= 1;
+      state->camera.target.x += 1;
+      break;
+    case SDLK_O:
+      state->camera.target.y -= 1;
+      break;
+    case SDLK_L:
+      state->camera.target.y += 1;
+      break;
+    case SDLK_N:
+      float old_x{light_dir.x};
+      light_dir.x = light_dir.x * std::cos(angle_increment) -
+                    light_dir.y * std::sin(angle_increment);
+      light_dir.y = old_x * std::sin(angle_increment) +
+                    light_dir.y * std::cos(angle_increment);
+
+      SDL_Log("x:%f y:%f z:%f", light_dir.x, light_dir.y, light_dir.z);
       break;
     }
   }
@@ -99,10 +110,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
 SDL_AppResult SDL_AppIterate(void *appstate) {
   auto *state = static_cast<AppState *>(appstate);
-  auto &camera = *state->camera;
+  auto &camera = state->camera;
   state->buffer->clear();
 
-  draw_scene(*state->buffer, camera);
+  draw_scene(*state->buffer, camera, light_dir);
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));

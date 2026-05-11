@@ -2,7 +2,6 @@
 #include "rasterizer.hpp"
 #include <algorithm>
 
-static constexpr Vec3 light_dir{1, 1, 1};
 static constexpr float ambient{0.2f};
 
 static Mat4 projection{project()};
@@ -19,12 +18,14 @@ static SceneObject cow{cow_mesh, {0, -5, -50}, {0.01f, 0.01f, 0.01f},
 static std::vector<SceneObject> objects{cube, cow};
 
 static void get_visible_faces_and_colors(const Camera &camera,
+                                         const Vec3 light_dir,
                                          const std::vector<Face> &faces,
                                          std::vector<Face> &visible_faces,
                                          std::vector<Color> &colors,
                                          std::vector<Vertex> &vertices) {
 
-  Vec4 light{light_dir.x, light_dir.y, light_dir.z, 0};
+  Vec3 light_dir_n{norm(light_dir)};
+  Vec4 light{light_dir_n.x, light_dir_n.y, light_dir_n.z, 0};
   Vec3 looking{norm((camera.view() * (camera.target - camera.pos)).xyz())};
   Vec3 view_light = norm((camera.view() * light).xyz());
 
@@ -81,7 +82,8 @@ static void draw_faces(FrameBuffer &buffer, const std::vector<Face> &faces,
   }
 }
 
-void draw_scene(FrameBuffer &buffer, const Camera &camera) {
+void draw_scene(FrameBuffer &buffer, const Camera &camera,
+                const Vec3 &light_dir) {
   for (const auto &o : objects) {
     auto vertices{o.mesh.vertices};
     for (auto &v : vertices) {
@@ -91,8 +93,8 @@ void draw_scene(FrameBuffer &buffer, const Camera &camera) {
 
     std::vector<Face> visible_faces{};
     std::vector<Color> colors{};
-    get_visible_faces_and_colors(camera, o.mesh.faces, visible_faces, colors,
-                                 vertices);
+    get_visible_faces_and_colors(camera, light_dir, o.mesh.faces, visible_faces,
+                                 colors, vertices);
 
     perspective_divide_and_screen_space(vertices);
     draw_faces(buffer, visible_faces, colors, vertices);
