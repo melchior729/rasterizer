@@ -9,13 +9,14 @@ static Mat4 projection{project()};
 static Mesh cube_mesh{Mesh::load("cube.obj")};
 static Mesh cow_mesh{Mesh::load("cow.obj")};
 
-static SceneObject cube{cube_mesh, {0, 0, -25}, {1.0f, 1.0f, 1.0f},
-                        0.0f,      1.78f,       0.0f};
-
-static SceneObject cow{cow_mesh, {0, -5, -50}, {0.01f, 0.01f, 0.01f},
-                       0.0f,     0.0f,         0.0f};
-
-static std::vector<SceneObject> objects{cube, cow};
+std::vector<SceneObject> get_objects(float x, float y, float z) {
+  std::vector<SceneObject> objects;
+  SceneObject cube{cube_mesh, {0, 0, -25}, {1.0f, 1.0f, 1.0f}, x, y, z};
+  SceneObject cow{cow_mesh, {0, -5, -50}, {0.01f, 0.01f, 0.01f}, x, y, z};
+  objects.push_back(cube);
+  objects.push_back(cow);
+  return objects;
+}
 
 static void get_visible_faces_and_colors(const Camera &camera,
                                          const Vec3 light_dir,
@@ -83,7 +84,8 @@ static void draw_faces(FrameBuffer &buffer, const std::vector<Face> &faces,
 }
 
 void draw_scene(FrameBuffer &buffer, const Camera &camera,
-                const Vec3 &light_dir) {
+                const Vec3 &light_dir, float x, float y, float z) {
+  auto objects{get_objects(x, y, z)};
   for (const auto &o : objects) {
     auto vertices{o.mesh.vertices};
     for (auto &v : vertices) {
