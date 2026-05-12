@@ -5,8 +5,6 @@
 #include <iterator>
 #include <sstream>
 
-static constexpr std::string PATH_PREFIX{"models/"};
-
 static void push_vertex(std::vector<std::string> &tokens,
                         std::vector<Vertex> &vertices) {
   float x{std::stof(tokens[1])};
@@ -93,7 +91,7 @@ static void push_face(std::vector<std::string> &tokens,
 }
 
 Mesh Mesh::load(const std::string &name) {
-  std::ifstream file{PATH_PREFIX + name};
+  std::ifstream file{MODEL_PATH + name};
   assert(file.is_open());
 
   Mesh mesh;
