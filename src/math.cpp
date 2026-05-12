@@ -51,9 +51,9 @@ static Mat4 rotate(float theta, std::size_t a, std::size_t b, std::size_t c,
 
 Mat4 rot_x(float theta) { return rotate(theta, 5, 9, 6, 10); }
 
-Mat4 rot_y(float theta) { return rotate(theta, 0, 8, 2, 10); }
+Mat4 rot_y(float theta) { return rotate(theta, 0, 2, 8, 10); }
 
-Mat4 rot_z(float theta) { return rotate(theta, 0, 4, 1, 2); }
+Mat4 rot_z(float theta) { return rotate(theta, 0, 4, 1, 5); }
 
 Mat4 project() {
   Mat4 i{identity()};
