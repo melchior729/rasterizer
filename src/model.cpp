@@ -60,7 +60,7 @@ static void push_face(std::vector<std::string> &tokens,
   Face face;
   std::size_t faces_index{};
 
-  for (std::size_t i{1}; i < tokens.size(); i++) {
+  for (std::size_t i{0}; i < tokens.size(); i++) {
     auto entries{get_entries(tokens[i])};
     std::size_t vi;
     std::string_view vi_str{entries[0]};
@@ -123,7 +123,13 @@ Mesh Mesh::load(const std::string &name) {
     }
 
     else if (type == "f") {
-      push_face(tokens, mesh.faces, mesh.vertices, uvs, normals);
+      std::vector<std::string> first{tokens[1], tokens[2], tokens[3]};
+      push_face(first, mesh.faces, mesh.vertices, uvs, normals);
+
+      if (tokens.size() == 5) {
+        std::vector<std::string> second{tokens[1], tokens[3], tokens[4]};
+        push_face(second, mesh.faces, mesh.vertices, uvs, normals);
+      }
     }
 
     else if (type == "mtllib") {
