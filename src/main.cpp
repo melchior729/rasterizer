@@ -82,16 +82,16 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->camera.pos.y -= 1;
       break;
     case SDLK_J:
-      state->camera.target.x -= 1;
+      state->camera.target.x -= 10;
       break;
     case SDLK_K:
-      state->camera.target.x += 1;
+      state->camera.target.x += 10;
       break;
     case SDLK_O:
-      state->camera.target.y -= 1;
+      state->camera.target.y -= 10;
       break;
     case SDLK_L:
-      state->camera.target.y += 1;
+      state->camera.target.y += 10;
       break;
     case SDLK_N:
       float old_x{light_dir.x};
@@ -100,7 +100,6 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       light_dir.y = old_x * std::sin(angle_increment) +
                     light_dir.y * std::cos(angle_increment);
 
-      SDL_Log("x:%f y:%f z:%f", light_dir.x, light_dir.y, light_dir.z);
       break;
     }
   }
