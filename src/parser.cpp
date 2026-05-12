@@ -1,4 +1,4 @@
-#include "model.hpp"
+#include "parser.hpp"
 #include "config.hpp"
 #include <charconv>
 #include <fstream>
@@ -90,8 +90,8 @@ static void push_face(std::vector<std::string> &tokens,
   faces.push_back(face);
 }
 
-Mesh Mesh::load(const std::string &name) {
-  std::ifstream file{MODEL_PATH + name};
+Mesh parse_obj(const std::string &path) {
+  std::ifstream file{MODEL_PATH + path};
   assert(file.is_open());
 
   Mesh mesh;
@@ -131,7 +131,7 @@ Mesh Mesh::load(const std::string &name) {
     }
 
     else if (type == "mtllib") {
-      // parse the next value as a mtl lib
+      // look at the file
     }
 
     else if (type == "usemtl") {
@@ -145,3 +145,5 @@ Mesh Mesh::load(const std::string &name) {
 
   return mesh;
 }
+
+Mesh Mesh::load(const std::string &path) { return parse_obj(path); }

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+// TODO this should be a type
 using Face = std::array<std::size_t, 3>;
 
 struct Vertex {
@@ -18,7 +19,7 @@ struct Mesh {
   std::vector<Vertex> vertices;
   std::vector<Face> faces;
 
-  static Mesh load(const std::string &name);
+  static Mesh load(const std::string &path);
 };
 
 struct SceneObject {
