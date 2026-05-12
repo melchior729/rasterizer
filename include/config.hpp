@@ -20,3 +20,5 @@ inline constexpr const Color BLACK{0xFF, 0, 0, 0};
 inline constexpr const Color WHITE{0xFF, 0xFF, 0xFF, 0xFF};
 
 inline constexpr const char TITLE[]{"Abhay's Rasterizer"};
+inline constexpr const char MODEL_PATH[]{"models/"};
+inline constexpr const char MATERIAL_PATH[]{"materials/"};
