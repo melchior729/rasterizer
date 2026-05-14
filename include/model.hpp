@@ -9,7 +9,6 @@ struct Vertex {
   Vec4 pos;
   Vec3 normal;
   Vec2 uv;
-  Color color;
 };
 
 struct Material {

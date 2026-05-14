@@ -1,9 +1,9 @@
 #include "rasterizer.hpp"
 #include "algorithm"
 
-void point(FrameBuffer &buffer, Vertex &p) {
+void point(FrameBuffer &buffer, Vertex &p, Color color) {
   buffer.set(static_cast<int>(p.pos.x), static_cast<int>(p.pos.y), p.pos.z,
-             p.color);
+             color);
 }
 
 static float det(const Vec4 &a, const Vec4 &b, const Vec4 &c) {
@@ -31,7 +31,7 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
   for (int i{min_x}; i < max_x; i++) {
     for (int j{min_y}; j < max_y; j++) {
       // TODO empty UV, Normals for now
-      Vertex p{{static_cast<float>(i), static_cast<float>(j)}, {}, {}, BLACK};
+      Vertex p{{static_cast<float>(i), static_cast<float>(j)}, {}, {}};
 
       float u{det(p.pos, b.pos, c.pos) * inv_det};
       float v{det(a.pos, p.pos, c.pos) * inv_det};
@@ -56,9 +56,7 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
                                       material.diffuse.b() * v +
                                       material.diffuse.b() * w)};
 
-      p.color = {0xFF, r, g, blue};
-
-      point(buffer, p);
+      point(buffer, p, {0xFF, r, g, blue});
     }
   }
 }
