@@ -33,7 +33,7 @@ struct SceneObject {
 
   SceneObject(Mesh &mesh, Mat4 &model) : mesh(mesh), model(model) {}
 
-  SceneObject(Mesh &m, Vec3 t, Vec3 s, float rx, float ry, float rz)
+  SceneObject(Mesh &m, Vec3 t, Vec3 s, Vec3 r)
       : mesh(m),
-        model(translate(t) * rot_x(rx) * rot_y(ry) * rot_z(rz) * scale(s)) {}
+        model(translate(t) * rot_x(r.x) * rot_y(r.y) * rot_z(r.z) * scale(s)) {}
 };

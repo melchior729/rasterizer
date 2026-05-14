@@ -1,6 +1,8 @@
 #include "rasterizer.hpp"
 #include "algorithm"
 
+static constexpr float ambient{0.2f};
+
 void point(FrameBuffer &buffer, Vertex &p, Color color) {
   buffer.set(static_cast<int>(p.pos.x), static_cast<int>(p.pos.y), p.pos.z,
              color);
@@ -11,7 +13,7 @@ static float det(const Vec4 &a, const Vec4 &b, const Vec4 &c) {
 }
 
 void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
-              Material material) {
+              const Material material, const Vec3 light_dir) {
   float det_val{
       det({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y}, {c.pos.x, c.pos.y})};
   if (std::abs(det_val) < 1e-7) {
@@ -27,6 +29,10 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
                        0, WIDTH)};
   int max_y{std::clamp(static_cast<int>(std::max({a.pos.y, b.pos.y, c.pos.y})),
                        0, HEIGHT)};
+
+  float bright_a{std::clamp(a.normal.dot(light_dir) + ambient, ambient, 1.0f)};
+  float bright_b{std::clamp(b.normal.dot(light_dir) + ambient, ambient, 1.0f)};
+  float bright_c{std::clamp(c.normal.dot(light_dir) + ambient, ambient, 1.0f)};
 
   for (int i{min_x}; i < max_x; i++) {
     for (int j{min_y}; j < max_y; j++) {
@@ -44,19 +50,21 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
       float z{a.pos.z * u + b.pos.z * v + c.pos.z * w};
       p.pos.z = z;
 
-      auto r{static_cast<uint32_t>(material.diffuse.r() * u +
-                                   material.diffuse.r() * v +
-                                   material.diffuse.r() * w)};
+      float brightness{bright_a * u + bright_b * v + bright_c * w};
 
-      auto g{static_cast<uint32_t>(material.diffuse.g() * u +
-                                   material.diffuse.g() * v +
-                                   material.diffuse.g() * w)};
+      auto r{static_cast<uint32_t>(brightness * (material.diffuse.r() * u +
+                                                 material.diffuse.r() * v +
+                                                 material.diffuse.r() * w))};
 
-      auto blue{static_cast<uint32_t>(material.diffuse.b() * u +
-                                      material.diffuse.b() * v +
-                                      material.diffuse.b() * w)};
+      auto g{static_cast<uint32_t>(brightness * (material.diffuse.g() * u +
+                                                 material.diffuse.g() * v +
+                                                 material.diffuse.g() * w))};
 
-      point(buffer, p, {0xFF, r, g, blue});
+      auto blue{static_cast<uint32_t>(brightness * (material.diffuse.b() * u +
+                                                    material.diffuse.b() * v +
+                                                    material.diffuse.b() * w))};
+      Color color{0xFF, r, g, blue};
+      point(buffer, p, color);
     }
   }
 }

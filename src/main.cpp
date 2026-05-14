@@ -7,9 +7,11 @@
 #include <SDL3/SDL_render.h>
 #include <memory>
 
-float x{0.0f};
-float y{0.0f};
-float z{0.0f};
+// static Vec3 light_dir{1, 1, 1};
+static Vec3 light_dir{0, 1, 0};
+static constexpr float angle_increment{FOV / 4};
+
+Vec3 rotations{0.0f, 0.0f, 0.0f};
 
 struct SDL_Deleter {
   void operator()(SDL_Window *w) const { SDL_DestroyWindow(w); }
@@ -24,9 +26,6 @@ struct AppState {
   std::unique_ptr<FrameBuffer> buffer{};
   Camera camera;
 };
-
-static Vec3 light_dir{1, 1, 1};
-static constexpr float angle_increment{FOV / 4};
 
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
                           [[maybe_unused]] char *argv[]) {
@@ -98,13 +97,13 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->camera.target.y += 10;
       break;
     case SDLK_T:
-      x += 0.1f;
+      rotations.x += 0.1f;
       break;
     case SDLK_Y:
-      y += 0.1f;
+      rotations.y += 0.1f;
       break;
     case SDLK_U:
-      z += 0.1f;
+      rotations.z += 0.1f;
       break;
     case SDLK_N:
       float old_x{light_dir.x};
@@ -112,7 +111,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
                     light_dir.y * std::sin(angle_increment);
       light_dir.y = old_x * std::sin(angle_increment) +
                     light_dir.y * std::cos(angle_increment);
-
+      light_dir = norm(light_dir);
       break;
     }
   }
@@ -125,7 +124,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   auto &camera = state->camera;
   state->buffer->clear();
 
-  draw_scene(*state->buffer, camera, light_dir, x, y, z);
+  draw_scene(*state->buffer, camera, light_dir, rotations);
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));
