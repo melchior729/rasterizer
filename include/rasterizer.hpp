@@ -5,4 +5,5 @@
 
 void point(FrameBuffer &buffer, Vertex &p);
 
-void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c);
+void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
+              Material material);

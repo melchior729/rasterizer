@@ -5,14 +5,20 @@
 #include <string>
 #include <vector>
 
-// TODO this should be a type
-using Face = std::array<std::size_t, 3>;
-
 struct Vertex {
   Vec4 pos;
   Vec3 normal;
   Vec2 uv;
   Color color;
+};
+
+struct Material {
+  Color diffuse{0xFFFFFFFF};
+};
+
+struct Face {
+  std::array<std::size_t, 3> indices;
+  Material material;
 };
 
 struct Mesh {

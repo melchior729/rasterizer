@@ -53,8 +53,9 @@ static std::vector<std::string_view> get_entries(const std::string &str) {
 }
 
 static void push_face(std::vector<std::string> &tokens,
-                      std::vector<Face> &faces, std::vector<Vertex> &vertices,
-                      std::vector<Vec2> &uvs, std::vector<Vec3> &normals) {
+                      std::vector<Vertex> &vertices, std::vector<Vec2> &uvs,
+                      std::vector<Vec3> &normals, Material material,
+                      std::vector<Face> &faces) {
   Face face;
   std::size_t faces_index{};
 
@@ -65,7 +66,7 @@ static void push_face(std::vector<std::string> &tokens,
     auto [_,
           e]{std::from_chars(vi_str.data(), vi_str.data() + vi_str.size(), vi)};
     assert(e == std::errc());
-    face[faces_index++] = --vi;
+    face.indices[faces_index++] = --vi;
 
     auto n{entries.size()};
     if (n == 3) {
@@ -74,7 +75,7 @@ static void push_face(std::vector<std::string> &tokens,
       auto [_, e]{std::from_chars(
           norm_i_str.data(), norm_i_str.data() + norm_i_str.size(), norm_i)};
       assert(e == std::errc());
-      vertices[face[faces_index - 1]].normal = normals[--norm_i];
+      vertices[face.indices[faces_index - 1]].normal = normals[--norm_i];
     }
 
     if (n >= 2 && !entries[1].empty()) {
@@ -83,10 +84,11 @@ static void push_face(std::vector<std::string> &tokens,
       auto [_, e]{std::from_chars(tex_i_str.data(),
                                   tex_i_str.data() + tex_i_str.size(), tex_i)};
       assert(e == std::errc());
-      vertices[face[faces_index - 1]].uv = uvs[--tex_i];
+      vertices[face.indices[faces_index - 1]].uv = uvs[--tex_i];
     }
   }
 
+  face.material = material;
   faces.push_back(face);
 }
 
@@ -95,8 +97,10 @@ Mesh parse_obj(const std::string &path) {
   assert(file.is_open());
 
   Mesh mesh;
+  Material current_material;
   std::vector<Vec2> uvs;
   std::vector<Vec3> normals;
+  std::unordered_map<std::string, Material> materials;
 
   std::string line;
   while (std::getline(file, line)) {
@@ -122,20 +126,24 @@ Mesh parse_obj(const std::string &path) {
 
     else if (type == "f") {
       std::vector<std::string> first{tokens[1], tokens[2], tokens[3]};
-      push_face(first, mesh.faces, mesh.vertices, uvs, normals);
+      push_face(first, mesh.vertices, uvs, normals, current_material,
+                mesh.faces);
 
       if (tokens.size() == 5) {
         std::vector<std::string> second{tokens[1], tokens[3], tokens[4]};
-        push_face(second, mesh.faces, mesh.vertices, uvs, normals);
+        push_face(second, mesh.vertices, uvs, normals, current_material,
+                  mesh.faces);
       }
     }
 
     else if (type == "mtllib") {
-      // look at the file
+      auto new_materials{parse_mtl(tokens[1])};
+      materials.merge(new_materials);
     }
 
     else if (type == "usemtl") {
-      // apply the material on the next faces, you must track the material
+      current_material = materials[tokens[1]];
+      SDL_Log("%x\n", current_material.diffuse.color);
     }
 
     else {
@@ -144,6 +152,45 @@ Mesh parse_obj(const std::string &path) {
   }
 
   return mesh;
+}
+
+std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
+  std::string path{MATERIAL_PATH + str + ".mtl"};
+  std::ifstream file{path};
+  assert(file.is_open());
+
+  std::unordered_map<std::string, Material> materials;
+  std::string newest_material;
+
+  std::string line;
+  while (std::getline(file, line)) {
+    std::stringstream ss(line);
+    std::vector<std::string> tokens{std::istream_iterator<std::string>(ss),
+                                    std::istream_iterator<std::string>()};
+    if (tokens.empty()) {
+      continue;
+    }
+
+    auto type{tokens[0]};
+
+    if (type == "newmtl") {
+      Material material;
+      materials[tokens[1]] = material;
+      newest_material = tokens[1];
+    }
+
+    else if (type == "Kd") {
+      constexpr std::size_t BASE{255};
+      auto r{static_cast<uint32_t>(std::stof(tokens[1]) * BASE)};
+      auto g{static_cast<uint32_t>(std::stof(tokens[2]) * BASE)};
+      auto b{static_cast<uint32_t>(std::stof(tokens[3]) * BASE)};
+
+      Color color{0xFF, r, g, b};
+      materials[newest_material].diffuse = color;
+    }
+  }
+
+  return materials;
 }
 
 Mesh Mesh::load(const std::string &path) { return parse_obj(path); }

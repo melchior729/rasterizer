@@ -8,13 +8,16 @@ static Mat4 projection{project()};
 
 static Mesh cube_mesh{Mesh::load("cube.obj")};
 static Mesh cow_mesh{Mesh::load("cow.obj")};
+// static Mesh gun_mesh{Mesh::load("pistol.obj")};
 
 std::vector<SceneObject> get_objects(float x, float y, float z) {
   std::vector<SceneObject> objects;
-  SceneObject cube{cube_mesh, {0, 0, -25}, {1.0f, 1.0f, 1.0f}, x, y, z};
-  SceneObject cow{cow_mesh, {0, -5, -50}, {0.01f, 0.01f, 0.01f}, x, y, z};
+  SceneObject cube{cube_mesh, {-10, 0, -10}, {1.0f, 1.0f, 1.0f}, x, y, z};
+  SceneObject cow{cow_mesh, {0, 0, -30}, {0.01f, 0.01f, 0.01f}, x, y, z};
+  // SceneObject gun{gun_mesh, {-10, 0, -50}, {1.0f, 1.0f, 1.0f}, x, y, z};
   objects.push_back(cube);
   objects.push_back(cow);
+  // objects.push_back(gun);
   return objects;
 }
 
@@ -31,9 +34,9 @@ static void get_visible_faces_and_colors(const Camera &camera,
   Vec3 view_light = norm((camera.view() * light).xyz());
 
   for (auto &f : faces) {
-    auto first = vertices[f[0]].pos.xyz();
-    auto second = vertices[f[1]].pos.xyz();
-    auto third = vertices[f[2]].pos.xyz();
+    auto first = vertices[f.indices[0]].pos.xyz();
+    auto second = vertices[f.indices[1]].pos.xyz();
+    auto third = vertices[f.indices[2]].pos.xyz();
 
     auto u{second - first};
     auto v{third - first};
@@ -41,9 +44,12 @@ static void get_visible_faces_and_colors(const Camera &camera,
 
     auto brightness{std::clamp((normal.dot(view_light) + ambient), 0.0f, 1.0f)};
 
-    Color color{0xFF, static_cast<uint32_t>(WHITE.r() * brightness),
-                static_cast<uint32_t>(WHITE.g() * brightness),
-                static_cast<uint32_t>(WHITE.b() * brightness)};
+    Color color{0xFF,
+                static_cast<uint32_t>(f.material.diffuse.r() * brightness),
+                static_cast<uint32_t>(f.material.diffuse.g() * brightness),
+                static_cast<uint32_t>(f.material.diffuse.b() * brightness)};
+
+    SDL_Log("%x \n", color.color);
 
     float val{normal.dot(looking)};
     if (val < 0) {
@@ -71,15 +77,15 @@ static void draw_faces(FrameBuffer &buffer, const std::vector<Face> &faces,
                        const std::vector<Vertex> &vertices) {
   for (std::size_t i = 0; i < faces.size(); i++) {
     auto f = faces[i];
-    auto first = vertices[f[0]];
-    auto second = vertices[f[1]];
-    auto third = vertices[f[2]];
+    auto first = vertices[f.indices[0]];
+    auto second = vertices[f.indices[1]];
+    auto third = vertices[f.indices[2]];
 
     first.color = colors[i];
     second.color = colors[i];
     third.color = colors[i];
 
-    triangle(buffer, first, third, second);
+    triangle(buffer, first, third, second, f.material);
   }
 }
 

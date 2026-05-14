@@ -10,7 +10,8 @@ static float det(const Vec4 &a, const Vec4 &b, const Vec4 &c) {
   return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 }
 
-void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c) {
+void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
+              Material material) {
   float det_val{
       det({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y}, {c.pos.x, c.pos.y})};
   if (std::abs(det_val) < 1e-7) {
@@ -29,7 +30,7 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c) {
 
   for (int i{min_x}; i < max_x; i++) {
     for (int j{min_y}; j < max_y; j++) {
-      // TODO empty Uv for now
+      // TODO empty UV, Normals for now
       Vertex p{{static_cast<float>(i), static_cast<float>(j)}, {}, {}, BLACK};
 
       float u{det(p.pos, b.pos, c.pos) * inv_det};
@@ -43,19 +44,20 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c) {
       float z{a.pos.z * u + b.pos.z * v + c.pos.z * w};
       p.pos.z = z;
 
-      auto alpha{static_cast<uint32_t>(a.color.a() * u + b.color.a() * v +
-                                       c.color.a() * w)};
+      auto r{static_cast<uint32_t>(material.diffuse.r() * u +
+                                   material.diffuse.r() * v +
+                                   material.diffuse.r() * w)};
 
-      auto r{static_cast<uint32_t>(a.color.r() * u + b.color.r() * v +
-                                   c.color.r() * w)};
+      auto g{static_cast<uint32_t>(material.diffuse.g() * u +
+                                   material.diffuse.g() * v +
+                                   material.diffuse.g() * w)};
 
-      auto g{static_cast<uint32_t>(a.color.g() * u + b.color.g() * v +
-                                   c.color.g() * w)};
+      auto blue{static_cast<uint32_t>(material.diffuse.b() * u +
+                                      material.diffuse.b() * v +
+                                      material.diffuse.b() * w)};
 
-      auto blue{static_cast<uint32_t>(a.color.b() * u + b.color.b() * v +
-                                      c.color.b() * w)};
+      p.color = {0xFF, r, g, blue};
 
-      p.color = {alpha, r, g, blue};
       point(buffer, p);
     }
   }

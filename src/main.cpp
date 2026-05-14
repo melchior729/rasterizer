@@ -25,7 +25,7 @@ struct AppState {
   Camera camera;
 };
 
-static Vec3 light_dir{0, 1, 0};
+static Vec3 light_dir{1, 1, 1};
 static constexpr float angle_increment{FOV / 4};
 
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
