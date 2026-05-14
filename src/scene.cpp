@@ -21,12 +21,10 @@ std::vector<SceneObject> get_objects(float x, float y, float z) {
   return objects;
 }
 
-static void get_visible_faces_and_colors(const Camera &camera,
-                                         const Vec3 light_dir,
-                                         const std::vector<Face> &faces,
-                                         std::vector<Face> &visible_faces,
-                                         std::vector<Color> &colors,
-                                         std::vector<Vertex> &vertices) {
+static void get_visible_faces(const Camera &camera, const Vec3 light_dir,
+                              std::vector<Face> &faces,
+                              std::vector<Face> &visible_faces,
+                              std::vector<Vertex> &vertices) {
 
   Vec3 light_dir_n{norm(light_dir)};
   Vec4 light{light_dir_n.x, light_dir_n.y, light_dir_n.z, 0};
@@ -49,12 +47,10 @@ static void get_visible_faces_and_colors(const Camera &camera,
                 static_cast<uint32_t>(f.material.diffuse.g() * brightness),
                 static_cast<uint32_t>(f.material.diffuse.b() * brightness)};
 
-    SDL_Log("%x \n", color.color);
-
+    f.material.diffuse.color = color.color;
     float val{normal.dot(looking)};
     if (val < 0) {
       visible_faces.push_back(f);
-      colors.push_back(color);
     }
   }
 }
@@ -73,17 +69,12 @@ static void perspective_divide_and_screen_space(std::vector<Vertex> &vertices) {
 }
 
 static void draw_faces(FrameBuffer &buffer, const std::vector<Face> &faces,
-                       const std::vector<Color> &colors,
                        const std::vector<Vertex> &vertices) {
   for (std::size_t i = 0; i < faces.size(); i++) {
     auto f = faces[i];
     auto first = vertices[f.indices[0]];
     auto second = vertices[f.indices[1]];
     auto third = vertices[f.indices[2]];
-
-    first.color = colors[i];
-    second.color = colors[i];
-    third.color = colors[i];
 
     triangle(buffer, first, third, second, f.material);
   }
@@ -92,7 +83,7 @@ static void draw_faces(FrameBuffer &buffer, const std::vector<Face> &faces,
 void draw_scene(FrameBuffer &buffer, const Camera &camera,
                 const Vec3 &light_dir, float x, float y, float z) {
   auto objects{get_objects(x, y, z)};
-  for (const auto &o : objects) {
+  for (auto &o : objects) {
     auto vertices{o.mesh.vertices};
     for (auto &v : vertices) {
       v.pos = camera.view() * o.model * v.pos;
@@ -100,11 +91,9 @@ void draw_scene(FrameBuffer &buffer, const Camera &camera,
     }
 
     std::vector<Face> visible_faces{};
-    std::vector<Color> colors{};
-    get_visible_faces_and_colors(camera, light_dir, o.mesh.faces, visible_faces,
-                                 colors, vertices);
+    get_visible_faces(camera, light_dir, o.mesh.faces, visible_faces, vertices);
 
     perspective_divide_and_screen_space(vertices);
-    draw_faces(buffer, visible_faces, colors, vertices);
+    draw_faces(buffer, visible_faces, vertices);
   }
 }
