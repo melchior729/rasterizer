@@ -87,7 +87,6 @@ void draw_scene(FrameBuffer &buffer, const Camera &camera,
     auto vertices{o.mesh.vertices};
     for (auto &v : vertices) {
       v.pos = camera.view() * o.model * v.pos;
-      v.color = WHITE;
     }
 
     std::vector<Face> visible_faces{};
