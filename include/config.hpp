@@ -5,6 +5,8 @@
 #include "color.hpp"
 #include <numbers>
 
+enum struct RenderMode { Wireframe, Flat, Gouraud, Phong };
+
 inline constexpr int WIDTH{1920};
 inline constexpr int HEIGHT{1080};
 inline constexpr float ASPECT{static_cast<float>(WIDTH) / HEIGHT};

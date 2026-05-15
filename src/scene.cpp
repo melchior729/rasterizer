@@ -70,10 +70,10 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
   }
 }
 
-int draw_scene(FrameBuffer &buffer, const Camera &camera, const Vec3 light_dir,
-               Vec3 rot) {
+int draw_scene(FrameBuffer &buffer, const Camera &camera,
+               const SceneConfig &config) {
   int num_faces{};
-  auto objects{get_objects(rot)};
+  auto objects{get_objects(config.rot)};
   for (auto &o : objects) {
     auto vertices{o.mesh.vertices};
     for (auto &v : vertices) {
@@ -84,7 +84,7 @@ int draw_scene(FrameBuffer &buffer, const Camera &camera, const Vec3 light_dir,
     get_visible_faces(camera, o.mesh.faces, visible_faces, vertices, num_faces);
 
     perspective_divide_and_screen_space(vertices);
-    draw_faces(buffer, light_dir, visible_faces, vertices);
+    draw_faces(buffer, config.light_dir, visible_faces, vertices);
   }
 
   return num_faces;

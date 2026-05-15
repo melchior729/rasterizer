@@ -8,11 +8,9 @@
 #include <SDL3/SDL_timer.h>
 #include <memory>
 
-// static Vec3 light_dir{1, 1, 1};
-static Vec3 light_dir{0, 1, 0};
+static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
+                                             "Phong"};
 static constexpr float angle_increment{FOV / 4};
-
-Vec3 rotations{0.0f, 0.0f, 0.0f};
 
 struct SDL_Deleter {
   void operator()(SDL_Window *w) const { SDL_DestroyWindow(w); }
@@ -26,6 +24,8 @@ struct AppState {
   std::unique_ptr<SDL_Texture, SDL_Deleter> texture{};
   std::unique_ptr<FrameBuffer> buffer{};
   Camera camera;
+  SceneConfig config{{0, 1, 0}, {0.0f, 0.0f, 0.0f}, RenderMode::Gouraud};
+  RenderMode mode{RenderMode::Gouraud};
   uint64_t last_time{};
 };
 
@@ -69,6 +69,18 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
   if (event->type == SDL_EVENT_KEY_DOWN) {
     switch (event->key.key) {
+    case SDLK_F1:
+      state->mode = RenderMode::Wireframe;
+      break;
+    case SDLK_F2:
+      state->mode = RenderMode::Flat;
+      break;
+    case SDLK_F3:
+      state->mode = RenderMode::Gouraud;
+      break;
+    case SDLK_F4:
+      state->mode = RenderMode::Phong;
+      break;
     case SDLK_W:
       state->camera.pos.z -= 1;
       break;
@@ -100,21 +112,23 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->camera.target.y += 10;
       break;
     case SDLK_T:
-      rotations.x += 0.1f;
+      state->config.rot.x += 0.1f;
       break;
     case SDLK_Y:
-      rotations.y += 0.1f;
+      state->config.rot.y += 0.1f;
       break;
     case SDLK_U:
-      rotations.z += 0.1f;
+      state->config.rot.z += 0.1f;
       break;
     case SDLK_N:
-      float old_x{light_dir.x};
+      auto light_dir{state->config.light_dir};
+      float old_x{state->config.light_dir.x};
       light_dir.x = light_dir.x * std::cos(angle_increment) -
                     light_dir.y * std::sin(angle_increment);
       light_dir.y = old_x * std::sin(angle_increment) +
                     light_dir.y * std::cos(angle_increment);
-      light_dir = norm(light_dir);
+
+      state->config.light_dir = norm(light_dir);
       break;
     }
   }
@@ -129,8 +143,11 @@ static void draw_overlay(AppState *state, int faces) {
                     static_cast<double>(SDL_GetPerformanceFrequency());
   state->last_time = now;
   char line[64];
-  SDL_snprintf(line, sizeof(line), "%.2f ms | %.0f fps | %d faces drawn",
-               frame_ms, 1000.0 / frame_ms, faces);
+  const char *mode_str = mode_names[static_cast<int>(state->mode)];
+
+  SDL_snprintf(line, sizeof(line),
+               "%.2f ms | %.0f fps | %d faces drawn | Method: %s", frame_ms,
+               1000.0 / frame_ms, faces, mode_str);
   SDL_SetRenderDrawColor(state->renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
   SDL_SetRenderScale(state->renderer.get(), 2.0f, 2.0f);
   SDL_RenderDebugText(state->renderer.get(), 4.0f, 4.0f, line);
@@ -142,7 +159,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   auto &camera = state->camera;
   state->buffer->clear();
 
-  int faces{draw_scene(*state->buffer, camera, light_dir, rotations)};
+  int faces{draw_scene(*state->buffer, camera, state->config)};
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));
