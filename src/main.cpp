@@ -5,6 +5,7 @@
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
+#include <SDL3/SDL_timer.h>
 #include <memory>
 
 // static Vec3 light_dir{1, 1, 1};
@@ -25,6 +26,7 @@ struct AppState {
   std::unique_ptr<SDL_Texture, SDL_Deleter> texture{};
   std::unique_ptr<FrameBuffer> buffer{};
   Camera camera;
+  uint64_t last_time{};
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
@@ -53,6 +55,7 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   state->buffer = std::make_unique<FrameBuffer>();
 
   SDL_SetRenderVSync(state->renderer.get(), 1);
+  state->last_time = SDL_GetPerformanceCounter();
   *appstate = state.release();
 
   return SDL_APP_CONTINUE;
@@ -119,12 +122,27 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   return SDL_APP_CONTINUE;
 }
 
+static void draw_overlay(AppState *state, int faces) {
+
+  uint64_t now{SDL_GetPerformanceCounter()};
+  double frame_ms = (double)(now - state->last_time) * 1000 /
+                    static_cast<double>(SDL_GetPerformanceFrequency());
+  state->last_time = now;
+  char line[64];
+  SDL_snprintf(line, sizeof(line), "%.2f ms | %.0f fps | %d faces drawn",
+               frame_ms, 1000.0 / frame_ms, faces);
+  SDL_SetRenderDrawColor(state->renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+  SDL_SetRenderScale(state->renderer.get(), 2.0f, 2.0f);
+  SDL_RenderDebugText(state->renderer.get(), 4.0f, 4.0f, line);
+  SDL_SetRenderScale(state->renderer.get(), 1.0f, 1.0f);
+}
+
 SDL_AppResult SDL_AppIterate(void *appstate) {
   auto *state = static_cast<AppState *>(appstate);
   auto &camera = state->camera;
   state->buffer->clear();
 
-  draw_scene(*state->buffer, camera, light_dir, rotations);
+  int faces{draw_scene(*state->buffer, camera, light_dir, rotations)};
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));
@@ -132,6 +150,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_RenderClear(state->renderer.get());
   SDL_RenderTexture(state->renderer.get(), state->texture.get(), nullptr,
                     nullptr);
+
+  draw_overlay(state, faces);
   SDL_RenderPresent(state->renderer.get());
 
   return SDL_APP_CONTINUE;

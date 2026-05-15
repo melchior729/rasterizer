@@ -3,5 +3,5 @@
 #include "camera.hpp"
 #include "frame_buffer.hpp"
 
-void draw_scene(FrameBuffer &buffer, const Camera &camera, const Vec3 light_dir,
-                Vec3 rot);
+int draw_scene(FrameBuffer &buffer, const Camera &camera, const Vec3 light_dir,
+               Vec3 rot);

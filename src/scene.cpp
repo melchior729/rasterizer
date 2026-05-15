@@ -11,19 +11,19 @@ static Mesh man_mesh{Mesh::load("man.obj")};
 std::vector<SceneObject> get_objects(Vec3 r) {
   std::vector<SceneObject> objects;
   SceneObject cube{cube_mesh, {10, 0, -10}, {1.0f, 1.0f, 1.0f}, r};
-  SceneObject cow{cow_mesh, {-10, 0, -20}, {0.8f, 0.8f, 0.8f}, r};
-  SceneObject man{man_mesh, {0, -10, -10}, {0.4f, 0.4f, 0.4f}, r};
+  // SceneObject cow{cow_mesh, {-10, 0, -20}, {0.8f, 0.8f, 0.8f}, r};
+  // SceneObject man{man_mesh, {0, -5, -10}, {0.4f, 0.4f, 0.4f}, r};
   // SceneObject gun{gun_mesh, {-10, 0, -50}, {1.0f, 1.0f, 1.0f}, r};
   objects.push_back(cube);
-  objects.push_back(cow);
-  objects.push_back(man);
+  // objects.push_back(cow);
+  // objects.push_back(man);
   // objects.push_back(gun);
   return objects;
 }
 
 static void get_visible_faces(const Camera &camera, std::vector<Face> &faces,
                               std::vector<Face> &visible_faces,
-                              std::vector<Vertex> &vertices) {
+                              std::vector<Vertex> &vertices, int &num_faces) {
 
   Vec3 looking{norm((camera.view() * (camera.target - camera.pos)).xyz())};
 
@@ -39,6 +39,7 @@ static void get_visible_faces(const Camera &camera, std::vector<Face> &faces,
     float val{normal.dot(looking)};
     if (val < 0) {
       visible_faces.push_back(f);
+      num_faces++;
     }
   }
 }
@@ -69,8 +70,9 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
   }
 }
 
-void draw_scene(FrameBuffer &buffer, const Camera &camera, const Vec3 light_dir,
-                Vec3 rot) {
+int draw_scene(FrameBuffer &buffer, const Camera &camera, const Vec3 light_dir,
+               Vec3 rot) {
+  int num_faces{};
   auto objects{get_objects(rot)};
   for (auto &o : objects) {
     auto vertices{o.mesh.vertices};
@@ -79,9 +81,11 @@ void draw_scene(FrameBuffer &buffer, const Camera &camera, const Vec3 light_dir,
     }
 
     std::vector<Face> visible_faces{};
-    get_visible_faces(camera, o.mesh.faces, visible_faces, vertices);
+    get_visible_faces(camera, o.mesh.faces, visible_faces, vertices, num_faces);
 
     perspective_divide_and_screen_space(vertices);
     draw_faces(buffer, light_dir, visible_faces, vertices);
   }
+
+  return num_faces;
 }
