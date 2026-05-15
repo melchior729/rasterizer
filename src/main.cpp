@@ -25,7 +25,6 @@ struct AppState {
   std::unique_ptr<FrameBuffer> buffer{};
   Camera camera;
   SceneConfig config{{0, 1, 0}, {0.0f, 0.0f, 0.0f}, RenderMode::Gouraud};
-  RenderMode mode{RenderMode::Gouraud};
   uint64_t last_time{};
 };
 
@@ -70,16 +69,16 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   if (event->type == SDL_EVENT_KEY_DOWN) {
     switch (event->key.key) {
     case SDLK_F1:
-      state->mode = RenderMode::Wireframe;
+      state->config.mode = RenderMode::Wireframe;
       break;
     case SDLK_F2:
-      state->mode = RenderMode::Flat;
+      state->config.mode = RenderMode::Flat;
       break;
     case SDLK_F3:
-      state->mode = RenderMode::Gouraud;
+      state->config.mode = RenderMode::Gouraud;
       break;
     case SDLK_F4:
-      state->mode = RenderMode::Phong;
+      state->config.mode = RenderMode::Phong;
       break;
     case SDLK_W:
       state->camera.pos.z -= 1;
@@ -143,7 +142,7 @@ static void draw_overlay(AppState *state, int faces) {
                     static_cast<double>(SDL_GetPerformanceFrequency());
   state->last_time = now;
   char line[64];
-  const char *mode_str = mode_names[static_cast<int>(state->mode)];
+  const char *mode_str = mode_names[static_cast<int>(state->config.mode)];
 
   SDL_snprintf(line, sizeof(line),
                "%.2f ms | %.0f fps | %d faces drawn | Method: %s", frame_ms,
