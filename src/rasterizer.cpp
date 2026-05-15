@@ -4,7 +4,7 @@
 static constexpr float ambient{0.2f};
 static constexpr float epsilon{-1e-4f};
 
-void point(FrameBuffer &buffer, Vertex &p, Color color) {
+void point(FrameBuffer &buffer, const Vertex &p, const Color color) {
   buffer.set(static_cast<int>(p.pos.x), static_cast<int>(p.pos.y), p.pos.z,
              color);
 }
@@ -13,8 +13,8 @@ static float det(const Vec4 &a, const Vec4 &b, const Vec4 &c) {
   return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 }
 
-void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
-              const Material material, const Vec3 light_dir) {
+void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
+              const Vertex &c, const Material material, const Vec3 light_dir) {
   float det_val{
       det({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y}, {c.pos.x, c.pos.y})};
   if (std::abs(det_val) < 1e-7) {
