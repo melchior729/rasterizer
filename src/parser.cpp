@@ -156,11 +156,12 @@ Mesh parse_obj(const std::string &path) {
 std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
   std::string path{MATERIAL_PATH + str + ".mtl"};
   std::ifstream file{path};
-  assert(file.is_open());
-
   std::unordered_map<std::string, Material> materials;
-  std::string newest_material;
+  if (!file.is_open()) {
+    return materials;
+  }
 
+  std::string newest_material;
   std::string line;
   while (std::getline(file, line)) {
     std::stringstream ss(line);
