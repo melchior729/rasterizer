@@ -10,8 +10,8 @@ inline constexpr int HEIGHT{1080};
 inline constexpr float ASPECT{static_cast<float>(WIDTH) / HEIGHT};
 
 inline constexpr float FOV{std::numbers::pi_v<float> / 2.0f};
-inline constexpr float NEAR{0.1f};
-inline constexpr float FAR{1000.0f};
+inline constexpr float NEAR{1.0f};
+inline constexpr float FAR{100.0f};
 
 inline constexpr const Color RED{0xFF, 0xFF, 0, 0};
 inline constexpr const Color GREEN{0xFF, 0, 0xFF, 0};

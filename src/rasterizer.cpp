@@ -2,6 +2,7 @@
 #include "algorithm"
 
 static constexpr float ambient{0.2f};
+static constexpr float epsilon{-1e-4f};
 
 void point(FrameBuffer &buffer, Vertex &p, Color color) {
   buffer.set(static_cast<int>(p.pos.x), static_cast<int>(p.pos.y), p.pos.z,
@@ -43,7 +44,7 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
       float v{det(a.pos, p.pos, c.pos) * inv_det};
       float w{det(a.pos, b.pos, p.pos) * inv_det};
 
-      if (u < 0 || v < 0 || w < 0) {
+      if (u < epsilon || v < epsilon || w < epsilon) {
         continue;
       }
 

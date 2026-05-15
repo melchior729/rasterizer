@@ -26,7 +26,7 @@ struct FrameBuffer {
   }
 
   void clear() {
-    Color bg{0xFF1E1E1E};
+    Color bg{WHITE};
     depth.fill(std::numeric_limits<float>::infinity());
     pixels.fill(bg);
   }
