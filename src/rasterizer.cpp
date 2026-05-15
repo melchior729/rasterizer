@@ -22,14 +22,18 @@ void triangle(FrameBuffer &buffer, Vertex &a, Vertex &b, Vertex &c,
   }
 
   float inv_det{1.0f / det_val};
-  int min_x{std::clamp(static_cast<int>(std::min({a.pos.x, b.pos.x, c.pos.x})),
-                       0, WIDTH)};
-  int min_y{std::clamp(static_cast<int>(std::min({a.pos.y, b.pos.y, c.pos.y})),
-                       0, HEIGHT)};
-  int max_x{std::clamp(static_cast<int>(std::max({a.pos.x, b.pos.x, c.pos.x})),
-                       0, WIDTH)};
-  int max_y{std::clamp(static_cast<int>(std::max({a.pos.y, b.pos.y, c.pos.y})),
-                       0, HEIGHT)};
+  int min_x{std::clamp(
+      static_cast<int>(std::floor(std::min({a.pos.x, b.pos.x, c.pos.x}))), 0,
+      WIDTH)};
+  int min_y{std::clamp(
+      static_cast<int>(std::floor(std::min({a.pos.y, b.pos.y, c.pos.y}))), 0,
+      HEIGHT)};
+  int max_x{std::clamp(
+      static_cast<int>(std::ceil(std::max({a.pos.x, b.pos.x, c.pos.x}))), 0,
+      WIDTH)};
+  int max_y{std::clamp(
+      static_cast<int>(std::ceil(std::max({a.pos.y, b.pos.y, c.pos.y}))), 0,
+      HEIGHT)};
 
   float bright_a{std::clamp(a.normal.dot(light_dir) + ambient, ambient, 1.0f)};
   float bright_b{std::clamp(b.normal.dot(light_dir) + ambient, ambient, 1.0f)};
