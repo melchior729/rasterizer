@@ -13,6 +13,48 @@ static float det(const Vec4 &a, const Vec4 &b, const Vec4 &c) {
   return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
 }
 
+void line(FrameBuffer &buffer, const Vertex &a, const Vertex &b) {
+  int x0{static_cast<int>(a.pos.x)};
+  int x1{static_cast<int>(b.pos.x)};
+  int y0{static_cast<int>(a.pos.y)};
+  int y1{static_cast<int>(b.pos.y)};
+
+  int dx = abs(x1 - x0);
+  int dy = abs(y1 - y0);
+  int sx = x0 < x1 ? 1 : -1;
+  int sy = y0 < y1 ? 1 : -1;
+  int err = dx - dy;
+
+  int x = x0;
+  int y = y0;
+
+  while (true) {
+    float t = dx != 0
+                  ? static_cast<float>(abs(x - x0)) / static_cast<float>(dx)
+                  : static_cast<float>(abs(y - y0)) / static_cast<float>(dy);
+    float z{a.pos.z + t * (b.pos.z - a.pos.z)};
+    buffer.set(x, y, z, WHITE);
+    if (x == x1 && y == y1)
+      break;
+    int e2 = 2 * err;
+    if (e2 > -dy) {
+      err -= dy;
+      x += sx;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y += sy;
+    }
+  }
+}
+
+void triangle_wireframe(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
+                        const Vertex &c) {
+  line(buffer, a, b);
+  line(buffer, a, c);
+  line(buffer, b, c);
+}
+
 void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
               const Vertex &c, const Material material, const Vec3 light_dir) {
   float det_val{
