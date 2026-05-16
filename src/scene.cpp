@@ -6,31 +6,35 @@ static Mat4 projection{project()};
 static Mesh cube_mesh{Mesh::load("cube.obj")};
 static Mesh cow_mesh{Mesh::load("cow.obj")};
 static Mesh man_mesh{Mesh::load("man.obj")};
-// static Mesh gun_mesh{Mesh::load("pistol.obj")};
+static Mesh gun_mesh{Mesh::load("pistol.obj")};
 
 std::vector<SceneObject> get_objects(Vec3 r) {
   std::vector<SceneObject> objects;
   SceneObject cube{cube_mesh, {10, 0, -10}, {1.0f, 1.0f, 1.0f}, r};
-  // SceneObject cow{cow_mesh, {-10, 0, -20}, {0.8f, 0.8f, 0.8f}, r};
-  // SceneObject man{man_mesh, {0, -5, -10}, {0.4f, 0.4f, 0.4f}, r};
-  // SceneObject gun{gun_mesh, {-10, 0, -50}, {1.0f, 1.0f, 1.0f}, r};
-  objects.push_back(cube);
+  SceneObject cow{cow_mesh, {-10, 0, -20}, {0.8f, 0.8f, 0.8f}, r};
+  SceneObject man{man_mesh, {0, -5, -10}, {0.4f, 0.4f, 0.4f}, r};
+  SceneObject gun{gun_mesh, {-10, 0, -50}, {1.0f, 1.0f, 1.0f}, r};
+
+  // objects.push_back(cube);
   // objects.push_back(cow);
-  // objects.push_back(man);
-  // objects.push_back(gun);
+  objects.push_back(man);
+  objects.push_back(gun);
   return objects;
 }
 
-static void get_visible_faces(const Camera &camera, std::vector<Face> &faces,
-                              std::vector<Face> &visible_faces,
-                              std::vector<Vertex> &vertices, int &num_faces) {
+static int get_visible_faces(const Camera &camera, std::vector<Face> &faces,
+                             std::vector<Face> &visible_faces,
+                             std::vector<Vertex> &vertices) {
 
+  int num_faces{};
   Vec3 looking{norm((camera.view() * (camera.target - camera.pos)).xyz())};
 
   for (auto &f : faces) {
     auto first = vertices[f.indices[0]].pos.xyz();
     auto second = vertices[f.indices[1]].pos.xyz();
     auto third = vertices[f.indices[2]].pos.xyz();
+
+    // TODO face shading here if the condition is met.
 
     auto u{second - first};
     auto v{third - first};
@@ -42,6 +46,8 @@ static void get_visible_faces(const Camera &camera, std::vector<Face> &faces,
       num_faces++;
     }
   }
+
+  return num_faces;
 }
 
 static void perspective_divide_and_screen_space(std::vector<Vertex> &vertices) {
@@ -59,14 +65,19 @@ static void perspective_divide_and_screen_space(std::vector<Vertex> &vertices) {
 
 static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
                        const std::vector<Face> &faces,
-                       const std::vector<Vertex> &vertices) {
+                       const std::vector<Vertex> &vertices,
+                       const RenderMode mode) {
   for (std::size_t i = 0; i < faces.size(); i++) {
     auto f = faces[i];
     auto first = vertices[f.indices[0]];
     auto second = vertices[f.indices[1]];
     auto third = vertices[f.indices[2]];
 
-    triangle(buffer, first, second, third, f.material, light_dir);
+    if (mode == RenderMode::Wireframe) {
+      triangle_wireframe(buffer, first, second, third);
+    } else {
+      triangle(buffer, first, second, third, f.material, light_dir);
+    }
   }
 }
 
@@ -81,10 +92,11 @@ int draw_scene(FrameBuffer &buffer, const Camera &camera,
     }
 
     std::vector<Face> visible_faces{};
-    get_visible_faces(camera, o.mesh.faces, visible_faces, vertices, num_faces);
+    num_faces +=
+        get_visible_faces(camera, o.mesh.faces, visible_faces, vertices);
 
     perspective_divide_and_screen_space(vertices);
-    draw_faces(buffer, config.light_dir, visible_faces, vertices);
+    draw_faces(buffer, config.light_dir, visible_faces, vertices, config.mode);
   }
 
   return num_faces;
