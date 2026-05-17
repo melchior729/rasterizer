@@ -1,7 +1,6 @@
 #include "rasterizer.hpp"
 #include "algorithm"
 
-static constexpr float ambient{0.2f};
 static constexpr float epsilon{-1e-4f};
 
 void point(FrameBuffer &buffer, const Vertex &p, const Color color) {
@@ -56,7 +55,9 @@ void triangle_wireframe(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
 }
 
 void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
-              const Vertex &c, const Material material, const Vec3 light_dir) {
+              const Vertex &c, const Material material,
+              [[maybe_unused]] const Vec3 light_dir, const float bright_a,
+              const float bright_b, const float bright_c) {
   float det_val{
       det({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y}, {c.pos.x, c.pos.y})};
   if (std::abs(det_val) < 1e-7) {
@@ -76,10 +77,6 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
   int max_y{std::clamp(
       static_cast<int>(std::ceil(std::max({a.pos.y, b.pos.y, c.pos.y}))), 0,
       HEIGHT)};
-
-  float bright_a{std::clamp(a.normal.dot(light_dir) + ambient, ambient, 1.0f)};
-  float bright_b{std::clamp(b.normal.dot(light_dir) + ambient, ambient, 1.0f)};
-  float bright_c{std::clamp(c.normal.dot(light_dir) + ambient, ambient, 1.0f)};
 
   for (int i{min_x}; i < max_x; i++) {
     for (int j{min_y}; j < max_y; j++) {

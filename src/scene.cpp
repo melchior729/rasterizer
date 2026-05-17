@@ -1,6 +1,8 @@
 #include "scene.hpp"
 #include "rasterizer.hpp"
+#include <algorithm>
 
+static constexpr float ambient{0.2f};
 static Mat4 projection{project()};
 
 static Mesh cube_mesh{Mesh::load("cube.obj")};
@@ -34,14 +36,13 @@ static int get_visible_faces(const Camera &camera, std::vector<Face> &faces,
     auto second = vertices[f.indices[1]].pos.xyz();
     auto third = vertices[f.indices[2]].pos.xyz();
 
-    // TODO face shading here if the condition is met.
-
     auto u{second - first};
     auto v{third - first};
     auto normal{norm(u.cross(v))};
 
     float val{normal.dot(looking)};
     if (val < 0) {
+      f.normal = camera.view().multiply(normal);
       visible_faces.push_back(f);
       num_faces++;
     }
@@ -73,10 +74,30 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
     auto second = vertices[f.indices[1]];
     auto third = vertices[f.indices[2]];
 
+    float bright_a;
+    float bright_b;
+    float bright_c;
+
+    if (mode == RenderMode::Flat) {
+      float brightness{
+          std::clamp(f.normal.dot(light_dir) + ambient, ambient, 1.0f)};
+      bright_a = brightness;
+      bright_b = brightness;
+      bright_c = brightness;
+    } else if (mode == RenderMode::Gouraud) {
+      bright_a =
+          std::clamp(first.normal.dot(light_dir) + ambient, ambient, 1.0f);
+      bright_b =
+          std::clamp(second.normal.dot(light_dir) + ambient, ambient, 1.0f);
+      bright_c =
+          std::clamp(third.normal.dot(light_dir) + ambient, ambient, 1.0f);
+    }
+
     if (mode == RenderMode::Wireframe) {
       triangle_wireframe(buffer, first, second, third);
     } else {
-      triangle(buffer, first, second, third, f.material, light_dir);
+      triangle(buffer, first, second, third, f.material, light_dir, bright_a,
+               bright_b, bright_c);
     }
   }
 }

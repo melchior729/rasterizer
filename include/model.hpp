@@ -17,6 +17,7 @@ struct Material {
 
 struct Face {
   std::array<std::size_t, 3> indices;
+  Vec3 normal;
   Material material;
 };
 

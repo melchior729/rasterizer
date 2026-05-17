@@ -69,6 +69,12 @@ struct Mat4 {
 
   Mat4 operator*(const Mat4 &other) const;
 
+  Vec3 multiply(const Vec3 &v) const {
+    return {m[0] * v.x + m[4] * v.y + m[8] * v.z,
+            m[1] * v.x + m[5] * v.y + m[9] * v.z,
+            m[2] * v.x + m[6] * v.y + m[10] * v.z};
+  }
+
   Vec4 operator*(const Vec3 &v) const {
     return {m[0] * v.x + m[4] * v.y + m[8] * v.z,
             m[1] * v.x + m[5] * v.y + m[9] * v.z,
