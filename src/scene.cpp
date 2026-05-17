@@ -20,7 +20,7 @@ std::vector<SceneObject> get_objects(Vec3 r) {
   // objects.push_back(cube);
   // objects.push_back(cow);
   objects.push_back(man);
-  objects.push_back(gun);
+  // objects.push_back(gun);
   return objects;
 }
 
@@ -32,17 +32,17 @@ static int get_visible_faces(const Camera &camera, std::vector<Face> &faces,
   Vec3 looking{norm((camera.view() * (camera.target - camera.pos)).xyz())};
 
   for (auto &f : faces) {
-    auto first = vertices[f.indices[0]].pos.xyz();
-    auto second = vertices[f.indices[1]].pos.xyz();
-    auto third = vertices[f.indices[2]].pos.xyz();
+    auto first = vertices[f.indices[0]];
+    auto second = vertices[f.indices[1]];
+    auto third = vertices[f.indices[2]];
 
-    auto u{second - first};
-    auto v{third - first};
+    auto u{second.pos.sub_xyz(first.pos)};
+    auto v{third.pos.sub_xyz(first.pos)};
     auto normal{norm(u.cross(v))};
 
     float val{normal.dot(looking)};
     if (val < 0) {
-      f.normal = camera.view().multiply(normal);
+      f.normal = normal;
       visible_faces.push_back(f);
       num_faces++;
     }
@@ -65,8 +65,7 @@ static void perspective_divide_and_screen_space(std::vector<Vertex> &vertices) {
 }
 
 static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
-                       const std::vector<Face> &faces,
-                       const std::vector<Vertex> &vertices,
+                       std::vector<Face> &faces, std::vector<Vertex> &vertices,
                        const RenderMode mode) {
   for (std::size_t i = 0; i < faces.size(); i++) {
     auto f = faces[i];
@@ -74,17 +73,13 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
     auto second = vertices[f.indices[1]];
     auto third = vertices[f.indices[2]];
 
-    float bright_a;
-    float bright_b;
-    float bright_c;
+    float bright_a{
+        std::clamp(f.normal.dot(light_dir) + ambient, ambient, 1.0f)};
 
-    if (mode == RenderMode::Flat) {
-      float brightness{
-          std::clamp(f.normal.dot(light_dir) + ambient, ambient, 1.0f)};
-      bright_a = brightness;
-      bright_b = brightness;
-      bright_c = brightness;
-    } else if (mode == RenderMode::Gouraud) {
+    float bright_b{bright_a};
+    float bright_c{bright_a};
+
+    if (mode == RenderMode::Gouraud) {
       bright_a =
           std::clamp(first.normal.dot(light_dir) + ambient, ambient, 1.0f);
       bright_b =
@@ -110,6 +105,7 @@ int draw_scene(FrameBuffer &buffer, const Camera &camera,
     auto vertices{o.mesh.vertices};
     for (auto &v : vertices) {
       v.pos = camera.view() * o.model * v.pos;
+      v.normal = (camera.view() * o.model * v.normal).xyz();
     }
 
     std::vector<Face> visible_faces{};
