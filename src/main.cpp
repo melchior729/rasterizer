@@ -24,7 +24,7 @@ struct AppState {
   std::unique_ptr<SDL_Texture, SDL_Deleter> texture{};
   std::unique_ptr<FrameBuffer> buffer{};
   Camera camera;
-  SceneConfig config{{0, 1, 0}, {0.0f, 0.0f, 0.0f}, RenderMode::Gouraud};
+  SceneConfig config{{1, 1, 1}, {0.0f, 0.0f, 0.0f}, RenderMode::Gouraud};
   uint64_t last_time{};
 };
 
