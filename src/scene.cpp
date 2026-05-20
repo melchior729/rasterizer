@@ -83,14 +83,15 @@ int draw_scene(FrameBuffer &buffer, SceneObject &o, const Camera &camera,
   for (auto &v : vertices) {
     v.pos = camera.view() * o.model * v.pos;
     v.view_pos = v.pos.xyz();
-    v.normal = (camera.view() * o.model * v.normal).xyz();
+    v.normal = norm((camera.view() * o.model * v.normal).xyz());
   }
 
   std::vector<Face> visible_faces{};
   num_faces += get_visible_faces(camera, o.mesh.faces, visible_faces, vertices);
 
   perspective_divide_and_screen_space(vertices);
-  draw_faces(buffer, config.light_dir, visible_faces, vertices, config.mode);
+  draw_faces(buffer, camera.view().multiply(config.light_dir), visible_faces,
+             vertices, config.mode);
 
   return num_faces;
 }
