@@ -5,6 +5,10 @@
 #include <string>
 #include <vector>
 
+inline constexpr Vec3 default_t{0.0f, 0.0f, -20.0f};
+inline constexpr Vec3 default_r{0.0f, 0.0f, 0.0f};
+inline constexpr Vec3 default_s{1.0f, 1.0f, 1.0f};
+
 struct Vertex {
   Vec4 pos;
   Vec3 normal;
@@ -30,11 +34,23 @@ struct Mesh {
 
 struct SceneObject {
   Mesh mesh;
+  Vec3 t;
+  Vec3 r;
+  Vec3 s;
   Mat4 model;
 
-  SceneObject(Mesh &mesh, Mat4 &model) : mesh(mesh), model(model) {}
+  SceneObject() : t(default_t), r(default_r), s(default_s) { update_matrix(); }
 
-  SceneObject(Mesh &m, Vec3 t, Vec3 s, Vec3 r)
-      : mesh(m),
-        model(translate(t) * rot_x(r.x) * rot_y(r.y) * rot_z(r.z) * scale(s)) {}
+  SceneObject(Mesh &mesh)
+      : mesh(mesh), t(default_t), r(default_r), s(default_s) {
+    update_matrix();
+  }
+
+  SceneObject(Mesh &m, Vec3 t, Vec3 r, Vec3 s) : mesh(m), t(t), r(r), s(s) {
+    update_matrix();
+  }
+
+  void update_matrix() {
+    model = translate(t) * rot_x(r.x) * rot_y(r.y) * rot_z(r.z) * scale(s);
+  }
 };
