@@ -17,7 +17,7 @@ static void push_vertex(std::vector<std::string> &tokens,
     w = std::stof(tokens[4]);
   }
 
-  vertices.push_back({{x, y, z, w}, {}, Vec2::none()});
+  vertices.push_back({{x, y, z, w}, {}, {}, Vec2::none()});
 }
 
 static void push_uv(std::vector<std::string> &tokens, std::vector<Vec2> &uvs) {

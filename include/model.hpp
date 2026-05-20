@@ -11,6 +11,7 @@ inline constexpr Vec3 default_s{1.0f, 1.0f, 1.0f};
 
 struct Vertex {
   Vec4 pos;
+  Vec3 view_pos;
   Vec3 normal;
   Vec2 uv;
 };

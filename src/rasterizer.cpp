@@ -81,7 +81,7 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
   for (int i{min_x}; i < max_x; i++) {
     for (int j{min_y}; j < max_y; j++) {
       // TODO empty UV, Normals for now
-      Vertex p{{static_cast<float>(i), static_cast<float>(j)}, {}, {}};
+      Vertex p{{static_cast<float>(i), static_cast<float>(j)}, {}, {}, {}};
 
       float u{det(p.pos, b.pos, c.pos) * inv_det};
       float v{det(a.pos, p.pos, c.pos) * inv_det};

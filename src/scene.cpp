@@ -55,7 +55,6 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
 
     float bright_a{
         std::clamp(f.normal.dot(light_dir) + ambient, ambient, 1.0f)};
-
     float bright_b{bright_a};
     float bright_c{bright_a};
 
@@ -83,6 +82,7 @@ int draw_scene(FrameBuffer &buffer, SceneObject &o, const Camera &camera,
   auto vertices{o.mesh.vertices};
   for (auto &v : vertices) {
     v.pos = camera.view() * o.model * v.pos;
+    v.view_pos = v.pos.xyz();
     v.normal = (camera.view() * o.model * v.normal).xyz();
   }
 
