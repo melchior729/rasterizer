@@ -133,6 +133,15 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->object->r.z += 0.1f;
       state->object->update_matrix();
       break;
+    case SDLK_1:
+      state->object = &cube;
+      break;
+    case SDLK_2:
+      state->object = &cow;
+      break;
+    case SDLK_3:
+      state->object = &man;
+      break;
     case SDLK_N:
       auto light_dir{state->config.light_dir};
       float old_x{state->config.light_dir.x};
