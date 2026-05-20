@@ -57,7 +57,7 @@ void triangle_wireframe(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
 void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
               const Vertex &c, const Material material,
               [[maybe_unused]] const Vec3 light_dir, const float bright_a,
-              const float bright_b, const float bright_c) {
+              const float bright_b, const float bright_c, RenderMode mode) {
   float det_val{
       det({a.pos.x, a.pos.y}, {b.pos.x, b.pos.y}, {c.pos.x, c.pos.y})};
   if (std::abs(det_val) < 1e-7) {
@@ -91,10 +91,17 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
         continue;
       }
 
+      float normal_x{a.normal.x * u + b.normal.x * v + c.normal.x * w};
+      float normal_y{a.normal.y * u + b.normal.y * v + c.normal.y * w};
+      float normal_z{a.normal.z * u + b.normal.z * v + c.normal.z * w};
+      Vec3 normal{normal_x, normal_y, normal_z};
+
+      float brightness = (mode == RenderMode::Phong)
+                             ? std::clamp(normal.dot(light_dir), ambient, 1.0f)
+                             : bright_a * u + bright_b * v + bright_c * w;
+
       float z{a.pos.z * u + b.pos.z * v + c.pos.z * w};
       p.pos.z = z;
-
-      float brightness{bright_a * u + bright_b * v + bright_c * w};
 
       auto r{static_cast<uint32_t>(brightness * (material.diffuse.r() * u +
                                                  material.diffuse.r() * v +
