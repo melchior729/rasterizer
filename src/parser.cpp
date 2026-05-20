@@ -5,6 +5,8 @@
 #include <iterator>
 #include <sstream>
 
+constexpr std::size_t BASE{255};
+
 static void push_vertex(std::vector<std::string> &tokens,
                         std::vector<Vertex> &vertices) {
   float x{std::stof(tokens[1])};
@@ -180,13 +182,25 @@ std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
     }
 
     else if (type == "Kd") {
-      constexpr std::size_t BASE{255};
       auto r{static_cast<uint32_t>(std::stof(tokens[1]) * BASE)};
       auto g{static_cast<uint32_t>(std::stof(tokens[2]) * BASE)};
       auto b{static_cast<uint32_t>(std::stof(tokens[3]) * BASE)};
 
       Color color{0xFF, r, g, b};
       materials[newest_material].diffuse = color;
+    }
+
+    else if (type == "Ks") {
+      auto r{static_cast<uint32_t>(std::stof(tokens[1]) * BASE)};
+      auto g{static_cast<uint32_t>(std::stof(tokens[2]) * BASE)};
+      auto b{static_cast<uint32_t>(std::stof(tokens[3]) * BASE)};
+
+      Color color{0xFF, r, g, b};
+      materials[newest_material].specular = color;
+    }
+
+    else if (type == "Ns") {
+      materials[newest_material].shine = std::stof(tokens[1]);
     }
   }
 
