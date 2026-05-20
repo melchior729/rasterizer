@@ -1,5 +1,6 @@
 #include "rasterizer.hpp"
 #include "algorithm"
+#include <cmath>
 
 static constexpr float epsilon{-1e-4f};
 
@@ -96,24 +97,41 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
       float normal_z{a.normal.z * u + b.normal.z * v + c.normal.z * w};
       Vec3 normal{normal_x, normal_y, normal_z};
 
-      float brightness = (mode == RenderMode::Phong)
-                             ? std::clamp(normal.dot(light_dir), ambient, 1.0f)
-                             : bright_a * u + bright_b * v + bright_c * w;
+      float brightness{bright_a * u + bright_b * v + bright_c * w};
+      float spec_r{};
+      float spec_g{};
+      float spec_b{};
 
       float z{a.pos.z * u + b.pos.z * v + c.pos.z * w};
       p.pos.z = z;
 
-      auto r{static_cast<uint32_t>(brightness * (material.diffuse.r() * u +
-                                                 material.diffuse.r() * v +
-                                                 material.diffuse.r() * w))};
+      if (mode == RenderMode::Phong) {
+        brightness = std::clamp(normal.dot(light_dir), ambient, 1.0f);
+        float view_x{a.view_pos.x * u + b.view_pos.x * v + c.view_pos.x * w};
+        float view_y{a.view_pos.y * u + b.view_pos.y * v + c.view_pos.y * w};
+        float view_z{a.view_pos.z * u + b.view_pos.z * v + c.view_pos.z * w};
 
-      auto g{static_cast<uint32_t>(brightness * (material.diffuse.g() * u +
-                                                 material.diffuse.g() * v +
-                                                 material.diffuse.g() * w))};
+        Vec3 view_pos{norm({-view_x, -view_y, -view_z})};
 
-      auto blue{static_cast<uint32_t>(brightness * (material.diffuse.b() * u +
-                                                    material.diffuse.b() * v +
-                                                    material.diffuse.b() * w))};
+        auto H{norm(light_dir + view_pos)};
+        auto spec{std::pow(std::max(normal.dot(H), 0.0f), material.shine)};
+
+        spec_r = material.specular.r() * spec;
+        spec_g = material.specular.g() * spec;
+        spec_b = material.specular.b() * spec;
+      }
+
+      auto r{std::clamp(
+          static_cast<uint32_t>(brightness * material.diffuse.r() + spec_r), 0U,
+          0xFFU)};
+
+      auto g{std::clamp(
+          static_cast<uint32_t>(brightness * material.diffuse.g() + spec_g), 0U,
+          0xFFU)};
+      auto blue{std::clamp(
+          static_cast<uint32_t>(brightness * material.diffuse.b() + spec_b), 0U,
+          0xFFU)};
+
       Color color{0xFF, r, g, blue};
       point(buffer, p, color);
     }
