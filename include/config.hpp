@@ -5,6 +5,7 @@
 #include "color.hpp"
 #include <numbers>
 
+inline constexpr float ambient{0.2f};
 enum struct RenderMode { Wireframe, Flat, Gouraud, Phong };
 
 inline constexpr int WIDTH{1920};

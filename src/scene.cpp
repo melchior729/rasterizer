@@ -2,7 +2,6 @@
 #include "rasterizer.hpp"
 #include <algorithm>
 
-static constexpr float ambient{0.2f};
 static Mat4 projection{project()};
 
 static int get_visible_faces(const Camera &camera, std::vector<Face> &faces,
