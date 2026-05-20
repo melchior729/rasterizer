@@ -17,6 +17,8 @@ struct Vertex {
 
 struct Material {
   Color diffuse{0xFFFFFFFF};
+  Color specular{0xFFFFFFFF};
+  float shine{32.0f};
 };
 
 struct Face {

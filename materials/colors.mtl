@@ -1,14 +1,24 @@
 newmtl red
 Kd 1.0 0.0 0.0
+Ks 1.0 0.0 0.0
+Ns 64.0
 
 newmtl green
 Kd 0.0 1.0 0.0
+Ks 1.0 0.0 0.0
+Ns 64.0
 
 newmtl blue
 Kd 0.0 0.0 1.0
+Ks 1.0 0.0 0.0
+Ns 64.0
 
 newmtl white 
 Kd 1.0 1.0 1.0
+Ks 1.0 0.0 0.0
+Ns 64.0
 
 newmtl black
 Kd 0.0 0.0 0.0
+Ks 1.0 0.0 0.0
+Ns 64.0
