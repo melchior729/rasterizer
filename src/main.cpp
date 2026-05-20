@@ -1,12 +1,17 @@
 #define SDL_MAIN_USE_CALLBACKS 1
 
 #include "camera.hpp"
+#include "model.hpp"
 #include "scene.hpp"
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
 #include <SDL3/SDL_timer.h>
 #include <memory>
+
+static Mesh cube_mesh{Mesh::load("cube.obj")};
+static Mesh cow_mesh{Mesh::load("cow.obj")};
+static Mesh man_mesh{Mesh::load("man.obj")};
 
 static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
                                              "Phong"};
@@ -24,7 +29,8 @@ struct AppState {
   std::unique_ptr<SDL_Texture, SDL_Deleter> texture{};
   std::unique_ptr<FrameBuffer> buffer{};
   Camera camera;
-  SceneConfig config{{1, 1, 1}, {0.0f, 0.0f, 0.0f}, RenderMode::Gouraud};
+  SceneObject object;
+  SceneConfig config{{1, 1, 1}, RenderMode::Gouraud};
   uint64_t last_time{};
 };
 
@@ -52,6 +58,7 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   state->renderer.reset(raw_renderer);
   state->texture.reset(raw_texture);
   state->buffer = std::make_unique<FrameBuffer>();
+  state->object.mesh = man_mesh;
 
   SDL_SetRenderVSync(state->renderer.get(), 1);
   state->last_time = SDL_GetPerformanceCounter();
@@ -111,13 +118,16 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->camera.target.y += 10;
       break;
     case SDLK_T:
-      state->config.rot.x += 0.1f;
+      state->object.r.x += 0.1f;
+      state->object.update_matrix();
       break;
     case SDLK_Y:
-      state->config.rot.y += 0.1f;
+      state->object.r.y += 0.1f;
+      state->object.update_matrix();
       break;
     case SDLK_U:
-      state->config.rot.z += 0.1f;
+      state->object.r.z += 0.1f;
+      state->object.update_matrix();
       break;
     case SDLK_N:
       auto light_dir{state->config.light_dir};
@@ -158,7 +168,7 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   auto &camera = state->camera;
   state->buffer->clear();
 
-  int faces{draw_scene(*state->buffer, camera, state->config)};
+  int faces{draw_scene(*state->buffer, state->object, camera, state->config)};
 
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));
