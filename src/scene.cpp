@@ -8,14 +8,12 @@ static Mat4 projection{project()};
 static Mesh cube_mesh{Mesh::load("cube.obj")};
 static Mesh cow_mesh{Mesh::load("cow.obj")};
 static Mesh man_mesh{Mesh::load("man.obj")};
-static Mesh gun_mesh{Mesh::load("pistol.obj")};
 
 std::vector<SceneObject> get_objects(Vec3 r) {
   std::vector<SceneObject> objects;
   SceneObject cube{cube_mesh, {10, 0, -10}, {1.0f, 1.0f, 1.0f}, r};
   SceneObject cow{cow_mesh, {-10, 0, -20}, {0.8f, 0.8f, 0.8f}, r};
   SceneObject man{man_mesh, {0, -5, -10}, {0.4f, 0.4f, 0.4f}, r};
-  SceneObject gun{gun_mesh, {-10, 0, -50}, {1.0f, 1.0f, 1.0f}, r};
 
   // objects.push_back(cube);
   // objects.push_back(cow);
