@@ -12,10 +12,12 @@
 static Mesh cube_mesh{Mesh::load("cube.obj")};
 static Mesh cow_mesh{Mesh::load("cow.obj")};
 static Mesh man_mesh{Mesh::load("man.obj")};
+static Mesh skull_mesh{Mesh::load("skull.obj")};
 
 static SceneObject cube{cube_mesh};
 static SceneObject cow{cow_mesh};
 static SceneObject man{man_mesh};
+static SceneObject skull{skull_mesh};
 
 static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
                                              "Phong"};
@@ -141,6 +143,12 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       break;
     case SDLK_3:
       state->object = &man;
+      break;
+    case SDLK_4:
+      state->object = &skull;
+      state->object->t = {0, 0, -50};
+      state->object->s = {0.1f, 0.1f, 0.1f};
+      state->object->update_matrix();
       break;
     case SDLK_N:
       auto light_dir{state->config.light_dir};
