@@ -1,5 +1,6 @@
 #include "parser.hpp"
 #include "config.hpp"
+#include <algorithm>
 #include <charconv>
 #include <fstream>
 #include <iterator>
@@ -113,6 +114,11 @@ Mesh parse_obj(const std::string &path) {
       continue;
     }
 
+    auto it{std::find(tokens.begin(), tokens.end(), "#")};
+    if (it != tokens.end() && tokens[0] != "#") {
+      tokens.erase(it, tokens.end());
+    }
+
     auto type{tokens[0]};
     if (type == "v") {
       push_vertex(tokens, mesh.vertices);
@@ -156,7 +162,7 @@ Mesh parse_obj(const std::string &path) {
 }
 
 std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
-  std::string path{MATERIAL_PATH + str + ".mtl"};
+  std::string path{MODEL_PATH + str + ".mtl"};
   std::ifstream file{path};
   std::unordered_map<std::string, Material> materials;
   if (!file.is_open()) {
