@@ -36,7 +36,7 @@ struct AppState {
   std::unique_ptr<FrameBuffer> buffer{};
   Camera camera;
   SceneObject *object;
-  SceneConfig config{{1, 1, 1}, RenderMode::Gouraud};
+  SceneConfig config{{1, 1, 1}, RenderMode::Phong};
   uint64_t last_time{};
 };
 
