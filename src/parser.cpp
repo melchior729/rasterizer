@@ -8,8 +8,8 @@
 
 constexpr std::size_t BASE{255};
 
-static void push_vertex(std::vector<std::string> &tokens,
-                        std::vector<Vertex> &vertices) {
+static void push_pos(std::vector<std::string> &tokens,
+                     std::vector<Vec4> &pos_cache) {
   float x{std::stof(tokens[1])};
   float y{std::stof(tokens[2])};
   float z{std::stof(tokens[3])};
@@ -18,7 +18,7 @@ static void push_vertex(std::vector<std::string> &tokens,
     w = std::stof(tokens[4]);
   }
 
-  vertices.push_back({{x, y, z, w}, {}, {}, Vec2::none()});
+  pos_cache.push_back({x, y, z, w});
 }
 
 static void push_uv(std::vector<std::string> &tokens, std::vector<Vec2> &uvs) {
@@ -56,9 +56,10 @@ static std::vector<std::string_view> get_entries(const std::string &str) {
 }
 
 static void push_face(std::vector<std::string> &tokens,
-                      std::vector<Vertex> &vertices, std::vector<Vec2> &uvs,
-                      std::vector<Vec3> &normals, Material material,
-                      std::vector<Face> &faces) {
+                      const std::vector<Vec4> &pos_cache,
+                      const std::vector<Vec2> &uvs,
+                      const std::vector<Vec3> &normals, Material material,
+                      Mesh &mesh) {
   Face face;
   std::size_t faces_index{};
 
@@ -66,33 +67,37 @@ static void push_face(std::vector<std::string> &tokens,
     auto entries{get_entries(tokens[i])};
     std::size_t vi;
     std::string_view vi_str{entries[0]};
-    auto [_,
-          e]{std::from_chars(vi_str.data(), vi_str.data() + vi_str.size(), vi)};
-    assert(e == std::errc());
-    face.indices[faces_index++] = --vi;
+    auto [ptr1, e1]{
+        std::from_chars(vi_str.data(), vi_str.data() + vi_str.size(), vi)};
+    assert(e1 == std::errc());
 
-    auto n{entries.size()};
-    if (n == 3) {
+    Vertex vertex;
+    vertex.pos = pos_cache[vi - 1];
+
+    if (entries.size() == 3) {
       std::size_t norm_i;
       std::string_view norm_i_str{entries[2]};
-      auto [_, e]{std::from_chars(
+      auto [ptr2, e2]{std::from_chars(
           norm_i_str.data(), norm_i_str.data() + norm_i_str.size(), norm_i)};
-      assert(e == std::errc());
-      vertices[face.indices[faces_index - 1]].normal = normals[--norm_i];
+      assert(e2 == std::errc());
+      vertex.normal = normals[norm_i - 1];
     }
 
-    if (n >= 2 && !entries[1].empty()) {
+    if (entries.size() >= 2 && !entries[1].empty()) {
       std::size_t tex_i;
       std::string_view tex_i_str{entries[1]};
-      auto [_, e]{std::from_chars(tex_i_str.data(),
-                                  tex_i_str.data() + tex_i_str.size(), tex_i)};
-      assert(e == std::errc());
-      vertices[face.indices[faces_index - 1]].uv = uvs[--tex_i];
+      auto [ptr3, e3]{std::from_chars(
+          tex_i_str.data(), tex_i_str.data() + tex_i_str.size(), tex_i)};
+      assert(e3 == std::errc());
+      vertex.uv = uvs[tex_i - 1];
     }
+
+    mesh.vertices.push_back(vertex);
+    face.indices[faces_index++] = mesh.vertices.size() - 1;
   }
 
   face.material = material;
-  faces.push_back(face);
+  mesh.faces.push_back(face);
 }
 
 Mesh parse_obj(const std::string &path) {
@@ -101,6 +106,7 @@ Mesh parse_obj(const std::string &path) {
 
   Mesh mesh;
   Material current_material;
+  std::vector<Vec4> pos_cache;
   std::vector<Vec2> uvs;
   std::vector<Vec3> normals;
   std::unordered_map<std::string, Material> materials;
@@ -121,7 +127,7 @@ Mesh parse_obj(const std::string &path) {
 
     auto type{tokens[0]};
     if (type == "v") {
-      push_vertex(tokens, mesh.vertices);
+      push_pos(tokens, pos_cache);
     }
 
     else if (type == "vt") {
@@ -134,13 +140,11 @@ Mesh parse_obj(const std::string &path) {
 
     else if (type == "f") {
       std::vector<std::string> first{tokens[1], tokens[2], tokens[3]};
-      push_face(first, mesh.vertices, uvs, normals, current_material,
-                mesh.faces);
+      push_face(first, pos_cache, uvs, normals, current_material, mesh);
 
       if (tokens.size() == 5) {
         std::vector<std::string> second{tokens[1], tokens[3], tokens[4]};
-        push_face(second, mesh.vertices, uvs, normals, current_material,
-                  mesh.faces);
+        push_face(second, pos_cache, uvs, normals, current_material, mesh);
       }
     }
 
