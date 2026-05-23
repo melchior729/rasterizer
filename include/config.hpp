@@ -1,5 +1,7 @@
 #pragma once
 
+#define STB_IMAGE_IMPLEMENTATION
+
 // TODO: Remove this import when the rasterizer is complete
 #include "SDL3/SDL_log.h"
 #include "color.hpp"
