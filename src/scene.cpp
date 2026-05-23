@@ -70,8 +70,8 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
     if (mode == RenderMode::Wireframe) {
       triangle_wireframe(buffer, first, second, third);
     } else {
-      triangle(buffer, first, second, third, f.material, light_dir, bright_a,
-               bright_b, bright_c, mode);
+      triangle(buffer, first, second, third, f.material, norm(light_dir),
+               bright_a, bright_b, bright_c, mode);
     }
   }
 }
