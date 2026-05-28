@@ -1,5 +1,6 @@
 #include "color.hpp"
 #include "stb_image.h"
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <string>
@@ -9,6 +10,18 @@ struct Texture {
   std::vector<Color> pixels{};
   int width{};
   int height{};
+
+  Color sample(float u, float v) {
+    float fx = u * static_cast<float>(width - 1);
+    float fy = v * static_cast<float>(height - 1);
+
+    auto x = std::clamp(static_cast<std::size_t>(fx), std::size_t{0},
+                        static_cast<std::size_t>(width - 1));
+    auto y = std::clamp(static_cast<std::size_t>(fy), std::size_t{0},
+                        static_cast<std::size_t>(height - 1));
+
+    return pixels[y * static_cast<size_t>(width) + x];
+  }
 
   static Texture load(const std::string &path) {
     Texture t;
