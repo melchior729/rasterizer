@@ -81,36 +81,29 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
 
   for (int i{min_x}; i < max_x; i++) {
     for (int j{min_y}; j < max_y; j++) {
-      // TODO empty UV, Normals for now
       Vertex p{{static_cast<float>(i), static_cast<float>(j)}, {}, {}, {}};
 
-      float u{det(p.pos, b.pos, c.pos) * inv_det};
-      float v{det(a.pos, p.pos, c.pos) * inv_det};
-      float w{det(a.pos, b.pos, p.pos) * inv_det};
+      float l1{det(p.pos, b.pos, c.pos) * inv_det};
+      float l2{det(a.pos, p.pos, c.pos) * inv_det};
+      float l3{det(a.pos, b.pos, p.pos) * inv_det};
 
-      if (u < epsilon || v < epsilon || w < epsilon) {
+      if (l1 < epsilon || l2 < epsilon || l3 < epsilon) {
         continue;
       }
 
-      float normal_x{a.normal.x * u + b.normal.x * v + c.normal.x * w};
-      float normal_y{a.normal.y * u + b.normal.y * v + c.normal.y * w};
-      float normal_z{a.normal.z * u + b.normal.z * v + c.normal.z * w};
+      float normal_x{a.normal.x * l1 + b.normal.x * l2 + c.normal.x * l3};
+      float normal_y{a.normal.y * l1 + b.normal.y * l2 + c.normal.y * l3};
+      float normal_z{a.normal.z * l1 + b.normal.z * l2 + c.normal.z * l3};
       Vec3 normal{normal_x, normal_y, normal_z};
 
-      float brightness{bright_a * u + bright_b * v + bright_c * w};
-      float spec_r{};
-      float spec_g{};
-      float spec_b{};
-
-      float z{a.pos.z * u + b.pos.z * v + c.pos.z * w};
-      p.pos.z = z;
+      float brightness{bright_a * l1 + bright_b * l2 + bright_c * l3};
+      float spec_r{}, spec_g{}, spec_b{};
 
       if (mode == RenderMode::Phong) {
         brightness = std::clamp(normal.dot(light_dir), ambient, 1.0f);
-        float view_x{a.view_pos.x * u + b.view_pos.x * v + c.view_pos.x * w};
-        float view_y{a.view_pos.y * u + b.view_pos.y * v + c.view_pos.y * w};
-        float view_z{a.view_pos.z * u + b.view_pos.z * v + c.view_pos.z * w};
-
+        float view_x{a.view_pos.x * l1 + b.view_pos.x * l2 + c.view_pos.x * l3};
+        float view_y{a.view_pos.y * l1 + b.view_pos.y * l2 + c.view_pos.y * l3};
+        float view_z{a.view_pos.z * l1 + b.view_pos.z * l2 + c.view_pos.z * l3};
         Vec3 view_pos{norm({-view_x, -view_y, -view_z})};
 
         auto H{norm(light_dir + view_pos)};
@@ -121,18 +114,33 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
         spec_b = material.specular.b() * spec;
       }
 
-      auto r{std::clamp(
-          static_cast<uint32_t>(brightness * material.diffuse.r() + spec_r), 0U,
-          0xFFU)};
+      float r_ch{}, g_ch{}, b_ch{};
+      if (!material.texture || material.texture->pixels.empty()) {
+        r_ch = material.diffuse.r() / 255.0f;
+        g_ch = material.diffuse.g() / 255.0f;
+        b_ch = material.diffuse.b() / 255.0f;
+      } else {
+        auto u{a.uv.x * l1 + b.uv.x * l2 + c.uv.x * l3};
+        auto v{a.uv.y * l1 + b.uv.y * l2 + c.uv.y * l3};
+        auto texel{material.texture->sample(u, v)};
 
-      auto g{std::clamp(
-          static_cast<uint32_t>(brightness * material.diffuse.g() + spec_g), 0U,
-          0xFFU)};
-      auto blue{std::clamp(
-          static_cast<uint32_t>(brightness * material.diffuse.b() + spec_b), 0U,
-          0xFFU)};
+        r_ch = texel.r() / 255.0f;
+        g_ch = texel.g() / 255.0f;
+        b_ch = texel.b() / 255.0f;
+      }
 
-      Color color{0xFF, r, g, blue};
+      auto R{std::clamp(
+          static_cast<uint32_t>(ambient + brightness * r_ch * 255.0f + spec_r),
+          0U, 0xFFU)};
+
+      auto G{std::clamp(
+          static_cast<uint32_t>(ambient + brightness * g_ch * 255.0f + spec_g),
+          0U, 0xFFU)};
+      auto B{std::clamp(
+          static_cast<uint32_t>(ambient + brightness * b_ch * 255.0f + spec_b),
+          0U, 0xFFU)};
+
+      Color color{0xFF, R, G, B};
       point(buffer, p, color);
     }
   }
