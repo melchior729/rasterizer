@@ -166,7 +166,7 @@ Mesh parse_obj(const std::string &path) {
 }
 
 std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
-  std::string path{MODEL_PATH + str + ".mtl"};
+  std::string path{MODEL_PATH + str};
   std::ifstream file{path};
   std::unordered_map<std::string, Material> materials;
   if (!file.is_open()) {
@@ -215,7 +215,7 @@ std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
 
     else if (type == "map_Kd") {
       materials[newest_material].texture =
-          std::make_shared<Texture>(Texture::load(tokens[1]));
+          std::make_shared<Texture>(Texture::load(TEXTURE_PATH + tokens[1]));
     }
   }
 
