@@ -212,6 +212,11 @@ std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
     else if (type == "Ns") {
       materials[newest_material].shine = std::stof(tokens[1]);
     }
+
+    else if (type == "map_Kd") {
+      materials[newest_material].texture =
+          std::make_shared<Texture>(Texture::load(tokens[1]));
+    }
   }
 
   return materials;

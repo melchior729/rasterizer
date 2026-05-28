@@ -2,6 +2,8 @@
 
 #include "color.hpp"
 #include "math.hpp"
+#include "texture.hpp"
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -20,6 +22,7 @@ struct Material {
   Color diffuse{0xFFFFFFFF};
   Color specular{0xFFFFFFFF};
   float shine{32.0f};
+  std::shared_ptr<Texture> texture;
 };
 
 struct Face {
