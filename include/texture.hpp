@@ -1,5 +1,4 @@
 #include "color.hpp"
-#include "stb_image.h"
 #include <cassert>
 #include <string>
 #include <vector>

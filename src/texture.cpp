@@ -1,6 +1,6 @@
 #include "texture.hpp"
+#include "stb_image.h"
 #include <algorithm>
-#define STB_IMAGE_IMPLEMENTATION
 
 Color Texture::sample(float u, float v) {
   float fx = u * static_cast<float>(width - 1);
