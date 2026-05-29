@@ -12,9 +12,14 @@ static int get_visible_faces(const Camera &camera, std::vector<Face> &faces,
   Vec3 looking{norm((camera.view() * (camera.target - camera.pos)).xyz())};
 
   for (auto &f : faces) {
+
     auto first = vertices[f.indices[0]];
     auto second = vertices[f.indices[1]];
     auto third = vertices[f.indices[2]];
+
+    if (first.pos.z > -NEAR || second.pos.z > -NEAR || third.pos.z > -NEAR) {
+      continue;
+    }
 
     auto u{second.pos.sub_xyz(first.pos)};
     auto v{third.pos.sub_xyz(first.pos)};
