@@ -9,11 +9,13 @@
 #include <SDL3/SDL_timer.h>
 #include <memory>
 
-static Mesh cube_mesh{Mesh::load("cube.obj")};
 static Mesh monkey_mesh{Mesh::load("suzanne.obj")};
+static Mesh statue_mesh{Mesh::load("LibertStatue.obj")};
+static Mesh plane_mesh{Mesh::load("plane.obj")};
 
-static SceneObject cube{cube_mesh};
 static SceneObject monkey{monkey_mesh};
+static SceneObject statue{statue_mesh};
+static SceneObject plane{plane_mesh};
 
 static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
                                              "Phong"};
@@ -60,7 +62,7 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   state->renderer.reset(raw_renderer);
   state->texture.reset(raw_texture);
   state->buffer = std::make_unique<FrameBuffer>();
-  state->object = &cube;
+  state->object = &monkey;
 
   SDL_SetRenderVSync(state->renderer.get(), 1);
   state->last_time = SDL_GetPerformanceCounter();
@@ -90,7 +92,7 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->config.mode = RenderMode::Phong;
       break;
     case SDLK_W:
-      state->camera.pos.z -= 1;
+      state->camera.pos.z -= 0.1;
       break;
     case SDLK_S:
       state->camera.pos.z += 1;
@@ -132,10 +134,13 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->object->update_matrix();
       break;
     case SDLK_1:
-      state->object = &cube;
+      state->object = &monkey;
       break;
     case SDLK_2:
-      state->object = &monkey;
+      state->object = &statue;
+      break;
+    case SDLK_3:
+      state->object = &plane;
       break;
     case SDLK_N:
       float cos_a = std::cos(angle_increment);
