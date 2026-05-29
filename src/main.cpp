@@ -138,14 +138,13 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->object = &monkey;
       break;
     case SDLK_N:
-      auto light_dir{state->config.light_dir};
-      float old_x{state->config.light_dir.x};
-      light_dir.x = light_dir.x * std::cos(angle_increment) -
-                    light_dir.y * std::sin(angle_increment);
-      light_dir.y = old_x * std::sin(angle_increment) +
-                    light_dir.y * std::cos(angle_increment);
-
-      state->config.light_dir = norm(light_dir);
+      float cos_a = std::cos(angle_increment);
+      float sin_a = std::sin(angle_increment);
+      auto &ld = state->config.light_dir;
+      float old_x = ld.x;
+      ld.x = old_x * cos_a - ld.z * sin_a;
+      ld.z = old_x * sin_a + ld.z * cos_a;
+      ld = norm(ld);
       break;
     }
   }
