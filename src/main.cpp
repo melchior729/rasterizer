@@ -10,8 +10,10 @@
 #include <memory>
 
 static Mesh cube_mesh{Mesh::load("cube.obj")};
+static Mesh monkey_mesh{Mesh::load("suzanne.obj")};
 
 static SceneObject cube{cube_mesh};
+static SceneObject monkey{monkey_mesh};
 
 static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
                                              "Phong"};
@@ -131,6 +133,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       break;
     case SDLK_1:
       state->object = &cube;
+      break;
+    case SDLK_2:
+      state->object = &monkey;
       break;
     case SDLK_N:
       auto light_dir{state->config.light_dir};
