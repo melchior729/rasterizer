@@ -23,7 +23,7 @@ static void push_uv(std::vector<std::string> &tokens, std::vector<Vec2> &uvs) {
   float x{std::stof(tokens[1])};
   float y{0};
   if (tokens.size() > 2) {
-    y = std::stof(tokens[2]);
+    y = 1.0f - std::stof(tokens[2]);
   }
 
   uvs.push_back({x, y});
