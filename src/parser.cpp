@@ -98,6 +98,27 @@ static void push_face(std::vector<std::string> &tokens,
   mesh.faces.push_back(face);
 }
 
+static void generate_normals(Mesh &mesh) {
+  for (auto &f : mesh.faces) {
+    auto first = &mesh.vertices[f.indices[0]];
+    auto second = &mesh.vertices[f.indices[1]];
+    auto third = &mesh.vertices[f.indices[2]];
+
+    auto U{second->pos.sub_xyz(first->pos)};
+    auto V{third->pos.sub_xyz(first->pos)};
+    auto normal{norm(U.cross(V))};
+
+    f.normal = normal;
+    first->normal = first->normal + f.normal;
+    second->normal = second->normal + f.normal;
+    third->normal = third->normal + f.normal;
+  }
+
+  for (auto &v : mesh.vertices) {
+    v.normal = norm(v.normal);
+  }
+}
+
 Mesh parse_obj(const std::string &path) {
   std::ifstream file{MODEL_PATH + path};
   assert(file.is_open());
@@ -158,6 +179,10 @@ Mesh parse_obj(const std::string &path) {
     else {
       continue;
     }
+  }
+
+  if (normals.empty()) {
+    generate_normals(mesh);
   }
 
   return mesh;
