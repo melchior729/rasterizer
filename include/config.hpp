@@ -9,7 +9,10 @@
 
 enum struct RenderMode { Wireframe, Flat, Gouraud, Phong };
 
-inline constexpr float ambient{0.2f};
+inline constexpr float AMBIENT{0.2f};
+
+inline constexpr std::size_t CHANNEL_VAL{255};
+inline constexpr float CHANNEL_VAL_F{255.0f};
 
 inline constexpr int WIDTH{1920};
 inline constexpr int HEIGHT{1080};
