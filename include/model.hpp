@@ -22,6 +22,7 @@ struct Material {
   Color diffuse{0xFFFFFFFF};
   Color specular{0xFFFFFFFF};
   float shine{32.0f};
+  int shine_log2{5};
   std::shared_ptr<Texture> texture;
 };
 

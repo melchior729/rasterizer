@@ -233,7 +233,10 @@ std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
     }
 
     else if (type == "Ns") {
-      materials[newest_material].shine = std::stof(tokens[1]);
+      float parsed{std::stof(tokens[1])};
+      materials[newest_material].shine = parsed;
+      materials[newest_material].shine_log2 =
+          static_cast<int>(std::log2(parsed));
     }
 
     else if (type == "map_Kd") {

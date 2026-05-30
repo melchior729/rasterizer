@@ -122,7 +122,10 @@ static Color shade_pixel(const Vertex &a, const Vertex &b, const Vertex &c,
     })};
 
     auto H{norm(light_dir + view_pos)};
-    auto spec{std::pow(std::max(normal.dot(H), 0.0f), material.shine)};
+    auto spec{std::max(normal.dot(H), 0.0f)};
+    for (int i = 0; i < material.shine_log2; i++) {
+      spec *= spec;
+    }
 
     spec_r = material.specular.r() * spec;
     spec_g = material.specular.g() * spec;
