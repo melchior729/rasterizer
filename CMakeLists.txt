@@ -18,5 +18,6 @@ target_compile_options(main PRIVATE
     -Wextra
     -Werror
     -Wsign-conversion
+    -O3
     -g
 )
