@@ -104,10 +104,18 @@ static Color shade_pixel(const Vertex &a, const Vertex &b, const Vertex &c,
                          const float bright_b, const float bright_c,
                          const Material &material, RenderMode mode) {
 
-  Vec3 normal{
-      norm({interpolate(a.normal.x, b.normal.x, c.normal.x, l1, l2, l3),
-            interpolate(a.normal.y, b.normal.y, c.normal.y, l1, l2, l3),
-            interpolate(a.normal.z, b.normal.z, c.normal.z, l1, l2, l3)})};
+  float inv_w{
+      interpolate(1.0f / a.pos.w, 1.0f / b.pos.w, 1.0f / c.pos.w, l1, l2, l3)};
+
+  Vec3 normal{norm({interpolate(a.normal.x / a.pos.w, b.normal.x / b.pos.w,
+                                c.normal.x / c.pos.w, l1, l2, l3) /
+                        inv_w,
+                    interpolate(a.normal.y / a.pos.w, b.normal.y / b.pos.w,
+                                c.normal.y / c.pos.w, l1, l2, l3) /
+                        inv_w,
+                    interpolate(a.normal.z / a.pos.w, b.normal.z / b.pos.w,
+                                c.normal.z / c.pos.w, l1, l2, l3) /
+                        inv_w})};
 
   auto brightness{interpolate(bright_a, bright_b, bright_c, l1, l2, l3)};
   float spec_r{}, spec_g{}, spec_b{};
@@ -134,8 +142,12 @@ static Color shade_pixel(const Vertex &a, const Vertex &b, const Vertex &c,
   float b_ch = material.diffuse.b();
 
   if (material.texture && !material.texture->pixels.empty()) {
-    auto u{interpolate(a.uv.x, b.uv.x, c.uv.x, l1, l2, l3)};
-    auto v{interpolate(a.uv.y, b.uv.y, c.uv.y, l1, l2, l3)};
+    auto u{interpolate(a.uv.x / a.pos.w, b.uv.x / b.pos.w, c.uv.x / c.pos.w, l1,
+                       l2, l3) /
+           inv_w};
+    auto v{interpolate(a.uv.y / a.pos.w, b.uv.y / b.pos.w, c.uv.y / c.pos.w, l1,
+                       l2, l3) /
+           inv_w};
     auto texel{material.texture->sample(u, v)};
 
     r_ch = texel.r();
