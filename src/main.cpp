@@ -92,10 +92,10 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->config.mode = RenderMode::Phong;
       break;
     case SDLK_W:
-      state->camera.pos.z -= 0.1;
+      state->camera.pos.z -= 0.2;
       break;
     case SDLK_S:
-      state->camera.pos.z += 1;
+      state->camera.pos.z += 0.2;
       break;
     case SDLK_A:
       state->camera.pos.x -= 1;
