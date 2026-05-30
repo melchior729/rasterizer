@@ -102,20 +102,14 @@ static Color shade_pixel(const Vertex &a, const Vertex &b, const Vertex &c,
                          const Vec3 light_dir, const float l1, const float l2,
                          const float l3, const float bright_a,
                          const float bright_b, const float bright_c,
-                         const Material &material, RenderMode mode) {
+                         const float w, const Material &material,
+                         RenderMode mode) {
 
-  float inv_w{
-      interpolate(1.0f / a.pos.w, 1.0f / b.pos.w, 1.0f / c.pos.w, l1, l2, l3)};
-
-  Vec3 normal{norm({interpolate(a.normal.x / a.pos.w, b.normal.x / b.pos.w,
-                                c.normal.x / c.pos.w, l1, l2, l3) /
-                        inv_w,
-                    interpolate(a.normal.y / a.pos.w, b.normal.y / b.pos.w,
-                                c.normal.y / c.pos.w, l1, l2, l3) /
-                        inv_w,
-                    interpolate(a.normal.z / a.pos.w, b.normal.z / b.pos.w,
-                                c.normal.z / c.pos.w, l1, l2, l3) /
-                        inv_w})};
+  Vec3 normal{norm({
+      interpolate(a.normal.x, b.normal.x, c.normal.x, l1, l2, l3) * w,
+      interpolate(a.normal.y, b.normal.y, c.normal.y, l1, l2, l3) * w,
+      interpolate(a.normal.z, b.normal.z, c.normal.z, l1, l2, l3) * w,
+  })};
 
   auto brightness{interpolate(bright_a, bright_b, bright_c, l1, l2, l3)};
   float spec_r{}, spec_g{}, spec_b{};
@@ -142,12 +136,8 @@ static Color shade_pixel(const Vertex &a, const Vertex &b, const Vertex &c,
   float b_ch = material.diffuse.b();
 
   if (material.texture && !material.texture->pixels.empty()) {
-    auto u{interpolate(a.uv.x / a.pos.w, b.uv.x / b.pos.w, c.uv.x / c.pos.w, l1,
-                       l2, l3) /
-           inv_w};
-    auto v{interpolate(a.uv.y / a.pos.w, b.uv.y / b.pos.w, c.uv.y / c.pos.w, l1,
-                       l2, l3) /
-           inv_w};
+    auto u{interpolate(a.uv.x, b.uv.x, c.uv.x, l1, l2, l3) * w};
+    auto v{interpolate(a.uv.y, b.uv.y, c.uv.y, l1, l2, l3) * w};
     auto texel{material.texture->sample(u, v)};
 
     r_ch = texel.r();
@@ -175,9 +165,9 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
   float inv_det{1.0f / det_val};
   Bounds bounds{calculate_bounds(a, b, c)};
 
-  for (int i{bounds.min_x}; i < bounds.max_x; i++) {
-    for (int j{bounds.min_y}; j < bounds.max_y; j++) {
-      Vertex p{{static_cast<float>(i), static_cast<float>(j)}, {}, {}, {}};
+  for (int i{bounds.min_y}; i < bounds.max_y; i++) {
+    for (int j{bounds.min_x}; j < bounds.max_x; j++) {
+      Vertex p{{static_cast<float>(j), static_cast<float>(i)}, {}, {}, {}};
 
       float l1, l2, l3;
       if (!get_barycentric(p.pos, a.pos, b.pos, c.pos, inv_det, l1, l2, l3)) {
@@ -187,8 +177,11 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
       float z{interpolate(a.pos.z, b.pos.z, c.pos.z, l1, l2, l3)};
       p.pos.z = z;
 
+      float w{1.0f / interpolate(1.0f / a.pos.w, 1.0f / b.pos.w, 1.0f / c.pos.w,
+                                 l1, l2, l3)};
+
       Color color{shade_pixel(a, b, c, light_dir, l1, l2, l3, bright_a,
-                              bright_b, bright_c, material, mode)};
+                              bright_b, bright_c, w, material, mode)};
       point(buffer, p, color);
     }
   }

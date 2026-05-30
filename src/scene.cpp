@@ -7,12 +7,10 @@ static Mat4 projection{project()};
 static int get_visible_faces(const Camera &camera, std::vector<Face> &faces,
                              std::vector<Face> &visible_faces,
                              std::vector<Vertex> &vertices) {
-
   int num_faces{};
-  Vec3 looking{norm((camera.view() * (camera.target - camera.pos)).xyz())};
+  Vec3 looking{norm(camera.view().multiply(camera.target - camera.pos))};
 
   for (auto &f : faces) {
-
     auto first = vertices[f.indices[0]];
     auto second = vertices[f.indices[1]];
     auto third = vertices[f.indices[2]];
@@ -49,6 +47,26 @@ static void perspective_divide_and_screen_space(std::vector<Vertex> &vertices) {
   }
 }
 
+static void pre_divide_attributes(Vertex &a, Vertex &b, Vertex &c) {
+  a.normal.x /= a.pos.w;
+  a.normal.y /= a.pos.w;
+  a.normal.z /= a.pos.w;
+  a.uv.x /= a.pos.w;
+  a.uv.y /= a.pos.w;
+
+  b.normal.x /= b.pos.w;
+  b.normal.y /= b.pos.w;
+  b.normal.z /= b.pos.w;
+  b.uv.x /= b.pos.w;
+  b.uv.y /= b.pos.w;
+
+  c.normal.x /= c.pos.w;
+  c.normal.y /= c.pos.w;
+  c.normal.z /= c.pos.w;
+  c.uv.x /= c.pos.w;
+  c.uv.y /= c.pos.w;
+}
+
 static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
                        std::vector<Face> &faces, std::vector<Vertex> &vertices,
                        const RenderMode mode) {
@@ -71,6 +89,8 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
       bright_c =
           std::clamp(third.normal.dot(light_dir) + AMBIENT, AMBIENT, 1.0f);
     }
+
+    pre_divide_attributes(first, second, third);
 
     if (mode == RenderMode::Wireframe) {
       triangle_wireframe(buffer, first, second, third);
