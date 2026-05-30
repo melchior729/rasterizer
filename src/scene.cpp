@@ -85,10 +85,11 @@ int draw_scene(FrameBuffer &buffer, SceneObject &o, const Camera &camera,
                const SceneConfig &config) {
   int num_faces{};
   auto vertices{o.mesh.vertices};
+  auto model_view{camera.view() * o.model};
   for (auto &v : vertices) {
-    v.pos = camera.view() * o.model * v.pos;
+    v.pos = model_view * v.pos;
     v.view_pos = v.pos.xyz();
-    v.normal = norm((camera.view() * o.model * v.normal).xyz());
+    v.normal = model_view.multiply(v.normal);
   }
 
   std::vector<Face> visible_faces{};
