@@ -4,11 +4,11 @@
 
 static Mat4 projection{project()};
 
-static int get_visible_faces(const Camera &camera, std::vector<Face> &faces,
+static int get_visible_faces(std::vector<Face> &faces,
                              std::vector<Face> &visible_faces,
                              std::vector<Vertex> &vertices) {
   int num_faces{};
-  Vec3 looking{norm(camera.view().multiply(camera.target - camera.pos))};
+  Vec3 looking{0, 0, -1};
 
   for (auto &f : faces) {
     auto first = vertices[f.indices[0]];
@@ -103,9 +103,10 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
 
 int draw_scene(FrameBuffer &buffer, SceneObject &o, const Camera &camera,
                const SceneConfig &config) {
-  int num_faces{};
+  const auto view{camera.view()};
+  const auto model_view{view * o.model};
   auto vertices{o.mesh.vertices};
-  auto model_view{camera.view() * o.model};
+  auto num_faces{0};
   for (auto &v : vertices) {
     v.pos = model_view * v.pos;
     v.view_pos = v.pos.xyz();
@@ -113,11 +114,11 @@ int draw_scene(FrameBuffer &buffer, SceneObject &o, const Camera &camera,
   }
 
   std::vector<Face> visible_faces{};
-  num_faces += get_visible_faces(camera, o.mesh.faces, visible_faces, vertices);
+  num_faces += get_visible_faces(o.mesh.faces, visible_faces, vertices);
 
   perspective_divide_and_screen_space(vertices);
-  draw_faces(buffer, camera.view().multiply(config.light_dir), visible_faces,
-             vertices, config.mode);
+  draw_faces(buffer, view.multiply(config.light_dir), visible_faces, vertices,
+             config.mode);
 
   return num_faces;
 }

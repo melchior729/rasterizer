@@ -20,4 +20,7 @@ target_compile_options(main PRIVATE
     -Wsign-conversion
     -O3
     -g
+    -march=native
+    -ffast-math
+    -flto
 )
