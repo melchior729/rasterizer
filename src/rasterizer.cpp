@@ -156,7 +156,7 @@ static Color shade_pixel(const Vertex &a, const Vertex &b, const Vertex &c,
 }
 
 void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
-              const Vertex &c, const Material material, const Vec3 light_dir,
+              const Vertex &c, const Material &material, const Vec3 light_dir,
               const float bright_a, const float bright_b, const float bright_c,
               RenderMode mode) {
   float det_val{
