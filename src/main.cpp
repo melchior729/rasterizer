@@ -3,6 +3,7 @@
 #include "camera.hpp"
 #include "model.hpp"
 #include "scene.hpp"
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
 #include <SDL3/SDL_render.h>
@@ -71,25 +72,62 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   return SDL_APP_CONTINUE;
 }
 
+void set_render_mode(AppState *state, int mode) {
+  state->config.mode = static_cast<RenderMode>(mode);
+}
+
+void apply_rotation(AppState *state, float x, float y, float z) {
+  state->object->r.x += x;
+  state->object->r.y += y;
+  state->object->r.z += z;
+  state->object->update_matrix();
+}
+
+void draw_monkey(AppState *state) { state->object = &monkey; }
+
+void draw_statue(AppState *state) { state->object = &statue; }
+
+void draw_plane(AppState *state) { state->object = &plane; }
+
+// for future models
+// void draw_monkey(AppState *state) {
+//
+// }
+// void draw_monkey(AppState *state) {
+//
+// }
+
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   auto *state = static_cast<AppState *>(appstate);
   if (event->type == SDL_EVENT_QUIT) {
     return SDL_APP_SUCCESS;
   }
 
+  if (event->type == SDL_EVENT_MOUSE_MOTION) {
+    if (event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
+      auto sens{0.005f};
+      apply_rotation(state, event->motion.yrel * sens,
+                     event->motion.xrel * sens, 0.0f);
+    }
+  }
+
+  if (event->type == SDL_EVENT_MOUSE_WHEEL) {
+    state->camera.pos.z -= event->wheel.y * 0.5f;
+  }
+
   if (event->type == SDL_EVENT_KEY_DOWN) {
     switch (event->key.key) {
     case SDLK_F1:
-      state->config.mode = RenderMode::Wireframe;
+      set_render_mode(state, 0);
       break;
     case SDLK_F2:
-      state->config.mode = RenderMode::Flat;
+      set_render_mode(state, 1);
       break;
     case SDLK_F3:
-      state->config.mode = RenderMode::Gouraud;
+      set_render_mode(state, 2);
       break;
     case SDLK_F4:
-      state->config.mode = RenderMode::Phong;
+      set_render_mode(state, 3);
       break;
     case SDLK_W:
       state->camera.pos.z -= 0.2;
@@ -121,26 +159,14 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
     case SDLK_L:
       state->camera.target.y += 10;
       break;
-    case SDLK_T:
-      state->object->r.x += 0.1f;
-      state->object->update_matrix();
-      break;
-    case SDLK_Y:
-      state->object->r.y += 0.1f;
-      state->object->update_matrix();
-      break;
-    case SDLK_U:
-      state->object->r.z += 0.1f;
-      state->object->update_matrix();
-      break;
     case SDLK_1:
-      state->object = &monkey;
+      draw_monkey(state);
       break;
     case SDLK_2:
-      state->object = &statue;
+      draw_statue(state);
       break;
     case SDLK_3:
-      state->object = &plane;
+      draw_plane(state);
       break;
     case SDLK_N:
       float cos_a = std::cos(angle_increment);
