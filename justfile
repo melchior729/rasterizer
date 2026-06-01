@@ -6,6 +6,11 @@ build:
 profile: build
     perf record -g ./build/main
 
+copy-code:
+    mv ./include/stb_image.h .
+    cat include/* src/* | wl-copy
+    mv stb_image.h include/
+
 run: build
     ./build/main
 
