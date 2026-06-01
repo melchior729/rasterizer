@@ -178,6 +178,10 @@ void triangle(FrameBuffer &buffer, const Vertex &a, const Vertex &b,
       }
 
       float z{interpolate(a.pos.z, b.pos.z, c.pos.z, l1, l2, l3)};
+      if (z >= buffer.depth[static_cast<std::size_t>(i * WIDTH + j)]) {
+        continue;
+      }
+
       p.pos.z = z;
 
       float w{1.0f / interpolate(1.0f / a.pos.w, 1.0f / b.pos.w, 1.0f / c.pos.w,
