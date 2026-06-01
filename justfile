@@ -3,6 +3,9 @@ build:
     cmake --build build/
     ln -sf build/compile_commands.json .
 
+profile: build
+    perf record -g ./build/main
+
 run: build
     ./build/main
 
