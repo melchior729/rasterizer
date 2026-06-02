@@ -4,7 +4,10 @@
 #include <charconv>
 #include <fstream>
 #include <iterator>
+#include <limits>
 #include <sstream>
+
+static constexpr float TARGET_SIZE = 20.0f;
 
 static void push_pos(std::vector<std::string> &tokens,
                      std::vector<Vec4> &pos_cache) {
@@ -248,4 +251,39 @@ std::unordered_map<std::string, Material> parse_mtl(const std::string &str) {
   return materials;
 }
 
-Mesh Mesh::load(const std::string &path) { return parse_obj(path); }
+Mesh Mesh::load(const std::string &path) {
+  Mesh mesh{parse_obj(path)};
+  if (mesh.vertices.empty()) {
+    return mesh;
+  }
+
+  float min{std::numeric_limits<float>::min()};
+  float max{std::numeric_limits<float>::max()};
+  Vec3 min_v{max, max, max};
+  Vec3 max_v{min, min, min};
+
+  for (auto &v : mesh.vertices) {
+    min_v.x = std::min(min_v.x, v.pos.x);
+    min_v.y = std::min(min_v.y, v.pos.y);
+    min_v.z = std::min(min_v.z, v.pos.z);
+
+    max_v.x = std::max(max_v.x, v.pos.x);
+    max_v.y = std::max(max_v.y, v.pos.y);
+    max_v.z = std::max(max_v.z, v.pos.z);
+  }
+
+  Vec3 len{max_v.x - min_v.x, max_v.y - min_v.y, max_v.z - min_v.z};
+  auto max_len{std::max({len.x, len.y, len.z})};
+  auto scale_factor{(max_len == 0.0f) ? 1.0f : TARGET_SIZE / max_len};
+
+  Vec3 center{(min_v.x + max_v.x) * 0.5f, (min_v.y + max_v.y) * 0.5f,
+              (min_v.z + max_v.z) * 0.5f};
+
+  for (auto &v : mesh.vertices) {
+    v.pos.x = (v.pos.x - center.x) * scale_factor;
+    v.pos.y = (v.pos.y - center.y) * scale_factor;
+    v.pos.z = (v.pos.z - center.z) * scale_factor;
+  }
+
+  return mesh;
+}
