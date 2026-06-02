@@ -8,7 +8,7 @@ file(GLOB SRCS "src/*.cpp" "src/*.c")
 add_executable(main)
 target_sources(main PRIVATE ${SRCS})
 target_include_directories(main PUBLIC include)
-set_source_files_properties(src/stb_impl.c PROPERTIES COMPILE_FLAGS "-w")
+set_source_files_properties(src/stb_impl.cpp PROPERTIES COMPILE_FLAGS "-w")
 
 find_package(SDL3 REQUIRED)
 target_link_libraries(main PRIVATE SDL3::SDL3)
