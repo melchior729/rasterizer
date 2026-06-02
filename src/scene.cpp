@@ -76,18 +76,14 @@ static void draw_faces(FrameBuffer &buffer, const Vec3 light_dir,
     auto second = vertices[f.indices[1]];
     auto third = vertices[f.indices[2]];
 
-    float bright_a{
-        std::clamp(f.normal.dot(light_dir) + AMBIENT, AMBIENT, 1.0f)};
+    float bright_a{std::clamp(f.normal.dot(light_dir), 0.0f, 1.0f)};
     float bright_b{bright_a};
     float bright_c{bright_a};
 
     if (mode == RenderMode::Gouraud) {
-      bright_a =
-          std::clamp(first.normal.dot(light_dir) + AMBIENT, AMBIENT, 1.0f);
-      bright_b =
-          std::clamp(second.normal.dot(light_dir) + AMBIENT, AMBIENT, 1.0f);
-      bright_c =
-          std::clamp(third.normal.dot(light_dir) + AMBIENT, AMBIENT, 1.0f);
+      bright_a = std::clamp(first.normal.dot(light_dir), 0.0f, 1.0f);
+      bright_b = std::clamp(second.normal.dot(light_dir), 0.0f, 1.0f);
+      bright_c = std::clamp(third.normal.dot(light_dir), 0.0f, 1.0f);
     }
 
     pre_divide_attributes(first, second, third);

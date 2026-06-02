@@ -95,7 +95,7 @@ static float interpolate(const float a, const float b, const float c,
 
 uint32_t compute_channel(float base, float spec, float brightness) {
   float shaded{AMBIENT + (brightness * base * CHANNEL_VAL_F) + spec};
-  return std::clamp(static_cast<uint32_t>(shaded), 0U, 255U);
+  return std::clamp(static_cast<uint32_t>(shaded), 15U, 255U);
 }
 
 static Color shade_pixel(const Vertex &a, const Vertex &b, const Vertex &c,
@@ -131,7 +131,7 @@ static Color shade_pixel(const Vertex &a, const Vertex &b, const Vertex &c,
     spec_g = material.specular.g() * spec;
     spec_b = material.specular.b() * spec;
 
-    brightness = std::clamp(normal.dot(light_dir), AMBIENT, 1.0f);
+    brightness = std::clamp(normal.dot(light_dir), 0.0f, 1.0f);
   }
 
   float r_ch = material.diffuse.r();
