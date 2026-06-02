@@ -223,6 +223,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));
 
   SDL_RenderClear(state->renderer.get());
+  SDL_SetTextureScaleMode(state->texture.get(), SDL_SCALEMODE_NEAREST);
+
   SDL_RenderTexture(state->renderer.get(), state->texture.get(), nullptr,
                     nullptr);
 
