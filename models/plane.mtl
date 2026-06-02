@@ -12,7 +12,7 @@ Tr 1.000000
 Kd 1.000000 1.000000 1.000000
 Ks 1.000000 1.000000 1.000000
 Ka 0.1 0.1 0.1
-map_Kd plane/diffuse.jpg
+map_Kd plane.jpg
 
 newmtl Glass
 Ns 64.000000

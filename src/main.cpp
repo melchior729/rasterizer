@@ -10,12 +10,18 @@
 #include <SDL3/SDL_timer.h>
 #include <memory>
 
-static Mesh monkey_mesh{Mesh::load("suzanne.obj")};
-static Mesh statue_mesh{Mesh::load("LibertStatue.obj")};
+static Mesh venus_mesh{Mesh::load("venus.obj")};
+static Mesh ship_mesh{Mesh::load("spaceship.obj")};
+static Mesh skull_mesh{Mesh::load("skull.obj")};
+static Mesh turtle_mesh{Mesh::load("terrorpin.obj")};
 static Mesh plane_mesh{Mesh::load("plane.obj")};
 
-static SceneObject monkey{monkey_mesh};
-static SceneObject statue{statue_mesh};
+static SceneObject venus{
+    venus_mesh, {0.0f, 0.0f, -20.0f}, {-1.57f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}};
+static SceneObject ship{ship_mesh};
+static SceneObject skull{
+    skull_mesh, {0.0f, 0.0f, -20.0f}, {-1.57f, 0.0f, 0.0f}, {0.8f, 0.8f, 0.8f}};
+static SceneObject turtle{turtle_mesh};
 static SceneObject plane{plane_mesh};
 
 static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
@@ -63,9 +69,9 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   state->renderer.reset(raw_renderer);
   state->texture.reset(raw_texture);
   state->buffer = std::make_unique<FrameBuffer>();
-  state->object = &monkey;
+  state->object = &venus;
 
-  SDL_SetRenderVSync(state->renderer.get(), 1);
+  SDL_SetRenderVSync(state->renderer.get(), 0);
   state->last_time = SDL_GetPerformanceCounter();
   *appstate = state.release();
 
@@ -91,19 +97,15 @@ void set_light_angle(AppState *state, float angle) {
   ld = norm(ld);
 }
 
-void draw_monkey(AppState *state) { state->object = &monkey; }
-
-void draw_statue(AppState *state) { state->object = &statue; }
+void draw_venus(AppState *state) { state->object = &venus; }
 
 void draw_plane(AppState *state) { state->object = &plane; }
 
-// for future models
-// void draw_monkey(AppState *state) {
-//
-// }
-// void draw_monkey(AppState *state) {
-//
-// }
+void draw_skull(AppState *state) { state->object = &skull; }
+
+void draw_ship(AppState *state) { state->object = &ship; }
+
+void draw_turtle(AppState *state) { state->object = &turtle; }
 
 SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   auto *state = static_cast<AppState *>(appstate);
@@ -168,12 +170,18 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->camera.target.y += 10;
       break;
     case SDLK_1:
-      draw_monkey(state);
+      draw_venus(state);
       break;
     case SDLK_2:
-      draw_statue(state);
+      draw_ship(state);
       break;
     case SDLK_3:
+      draw_skull(state);
+      break;
+    case SDLK_4:
+      draw_turtle(state);
+      break;
+    case SDLK_5:
       draw_plane(state);
       break;
     case SDLK_N:
