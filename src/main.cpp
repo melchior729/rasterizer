@@ -20,7 +20,7 @@ static SceneObject plane{plane_mesh};
 
 static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
                                              "Phong"};
-static constexpr float angle_increment{FOV / 4};
+static float angle{0.0f};
 
 struct SDL_Deleter {
   void operator()(SDL_Window *w) const { SDL_DestroyWindow(w); }
@@ -81,6 +81,14 @@ void apply_rotation(AppState *state, float x, float y, float z) {
   state->object->r.y += y;
   state->object->r.z += z;
   state->object->update_matrix();
+}
+
+void set_light_angle(AppState *state, float angle) {
+  auto &ld{state->config.light_dir};
+  ld.x = std::sin(angle);
+  ld.y = 1.0f;
+  ld.z = std::cos(angle);
+  ld = norm(ld);
 }
 
 void draw_monkey(AppState *state) { state->object = &monkey; }
@@ -169,13 +177,8 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       draw_plane(state);
       break;
     case SDLK_N:
-      float cos_a = std::cos(angle_increment);
-      float sin_a = std::sin(angle_increment);
-      auto &ld = state->config.light_dir;
-      float old_x = ld.x;
-      ld.x = old_x * cos_a - ld.z * sin_a;
-      ld.z = old_x * sin_a + ld.z * cos_a;
-      ld = norm(ld);
+      angle += 0.1f;
+      set_light_angle(state, angle);
       break;
     }
   }
