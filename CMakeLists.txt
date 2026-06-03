@@ -3,7 +3,8 @@ project(rasterizer)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-file(GLOB SRCS "src/*.cpp" "src/*.c")
+file(GLOB SRCS "src/*.cpp")
+list(FILTER SRCS EXCLUDE REGEX ".*/web_api\\.cpp$")
 
 add_executable(main)
 target_sources(main PRIVATE ${SRCS})
