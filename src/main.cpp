@@ -3,6 +3,7 @@
 #include "camera.hpp"
 #include "model.hpp"
 #include "scene.hpp"
+#include "web_bridge.hpp"
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_main.h>
@@ -24,6 +25,12 @@ static SceneObject skull{
 static SceneObject turtle{turtle_mesh};
 static SceneObject plane{plane_mesh};
 
+#ifdef __EMSCRIPTEN__
+static Mesh user_mesh{};
+static SceneObject user_obj{user_mesh};
+static bool user_mesh_loaded{false};
+#endif
+
 static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
                                              "Phong"};
 static float angle{0.0f};
@@ -44,6 +51,10 @@ struct AppState {
   SceneConfig config{{0.577f, 0.577f, 0.557f}, RenderMode::Phong};
   uint64_t last_time{};
 };
+
+#ifdef __EMSCRIPTEN__
+static AppState *g_app_state{nullptr};
+#endif
 
 SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
                           [[maybe_unused]] char *argv[]) {
@@ -74,6 +85,10 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   SDL_SetRenderVSync(state->renderer.get(), 0);
   state->last_time = SDL_GetPerformanceCounter();
   *appstate = state.release();
+
+#ifdef __emscripten__
+  web_bind_app_state(*appstate);
+#endif
 
   return SDL_APP_CONTINUE;
 }
@@ -207,7 +222,12 @@ static void draw_overlay(AppState *state, int faces) {
                "%.2f ms | %.0f fps | %d faces drawn | Method: %s", frame_ms,
                1000.0 / frame_ms, faces, mode_str);
   SDL_SetRenderDrawColor(state->renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
-  SDL_SetRenderScale(state->renderer.get(), 2.0f, 2.0f);
+#ifdef __EMSCRIPTEN__
+  constexpr float overlay_scale{1.0f};
+#else
+  constexpr float overlay_scale{2.0f};
+#endif
+  SDL_SetRenderScale(state->renderer.get(), overlay_scale, overlay_scale);
   SDL_RenderDebugText(state->renderer.get(), 4.0f, 4.0f, line);
   SDL_SetRenderScale(state->renderer.get(), 1.0f, 1.0f);
 }
@@ -223,7 +243,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));
 
   SDL_RenderClear(state->renderer.get());
+#ifdef __EMSCRIPTEN__
+  SDL_SetTextureScaleMode(state->texture.get(), SDL_SCALEMODE_LINEAR);
+#else
   SDL_SetTextureScaleMode(state->texture.get(), SDL_SCALEMODE_NEAREST);
+#endif
 
   SDL_RenderTexture(state->renderer.get(), state->texture.get(), nullptr,
                     nullptr);
@@ -241,3 +265,69 @@ void SDL_AppQuit(void *appstate, [[maybe_unused]] SDL_AppResult result) {
 
   SDL_Quit();
 }
+
+#ifdef __EMSCRIPTEN__
+
+void web_bind_app_state(void *appstate) {
+  g_app_state = static_cast<AppState *>(appstate);
+}
+
+static void select_builtin_model(AppState *state, int id) {
+  switch (id) {
+  case 0:
+    state->object = &venus;
+    break;
+  case 1:
+    state->object = &ship;
+    break;
+  case 2:
+    state->object = &skull;
+    break;
+  case 3:
+    state->object = &turtle;
+    break;
+  case 4:
+    state->object = &plane;
+    break;
+  default:
+    state->object = &venus;
+    break;
+  }
+}
+
+void web_set_model(int id) {
+  if (!g_app_state) {
+    return;
+  }
+
+  constexpr int user_model_id{5};
+  if (id == user_model_id) {
+    g_app_state->object = user_mesh_loaded ? &user_obj : &venus;
+    return;
+  }
+
+  select_builtin_model(g_app_state, id);
+}
+
+void web_set_render_mode(int mode) {
+  if (!g_app_state) {
+    return;
+  }
+  set_render_mode(g_app_state, mode);
+}
+
+void web_set_light_angle(float light_angle) {
+  if (!g_app_state) {
+    return;
+  }
+  angle = light_angle;
+  set_light_angle(g_app_state, light_angle);
+}
+
+int web_has_user_mesh() { return user_mesh_loaded ? 1 : 0; }
+
+void web_reload_user_mesh() {
+  // when loading user models from memfs
+}
+
+#endif
