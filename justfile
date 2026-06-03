@@ -17,5 +17,8 @@ run: build
 debug: build
     gdb ./build/main
 
+web:
+    ./build-web.sh
+
 clean:
     rm -rf build/
