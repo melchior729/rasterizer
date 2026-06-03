@@ -1,4 +1,3 @@
-// TODO this class should be eventually removed
 #pragma once
 
 #include <cstdint>
