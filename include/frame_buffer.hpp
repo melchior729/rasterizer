@@ -7,8 +7,11 @@
 struct FrameBuffer {
   std::array<Color, WIDTH * HEIGHT> pixels{};
   std::array<float, WIDTH * HEIGHT> depth{};
+  Color clear_color{BG};
 
   FrameBuffer() { clear(); }
+
+  void set_clear_color(Color color) { clear_color = color; }
 
   void set(int x, int y, float z, Color color) {
     if (out_of_bounds(x, y)) {
@@ -25,9 +28,8 @@ struct FrameBuffer {
   }
 
   void clear() {
-    Color bg{0xFF1C1C1C};
     depth.fill(std::numeric_limits<float>::max());
-    pixels.fill(bg);
+    pixels.fill(clear_color);
   }
 
   bool out_of_bounds(int x, int y) const {

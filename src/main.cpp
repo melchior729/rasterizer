@@ -324,6 +324,14 @@ void web_set_light_angle(float light_angle) {
   set_light_angle(g_app_state, light_angle);
 }
 
+void web_set_day_mode(int is_day) {
+  if (!g_app_state) {
+    return;
+  }
+  g_app_state->buffer->set_clear_color(is_day ? BG_DAY : BG);
+  g_app_state->buffer->clear();
+}
+
 int web_has_user_mesh() { return user_mesh_loaded ? 1 : 0; }
 
 void web_reload_user_mesh() {

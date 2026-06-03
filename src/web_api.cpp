@@ -15,6 +15,10 @@ EMSCRIPTEN_KEEPALIVE void set_light_angle(float angle) {
   web_set_light_angle(angle);
 }
 
+EMSCRIPTEN_KEEPALIVE void set_day_mode(int is_day) {
+  web_set_day_mode(is_day);
+}
+
 EMSCRIPTEN_KEEPALIVE int has_user_mesh() { return web_has_user_mesh(); }
 
 EMSCRIPTEN_KEEPALIVE void reload_user_mesh() { web_reload_user_mesh(); }
