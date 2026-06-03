@@ -5,4 +5,5 @@ compile_commands.json
 .to_do
 /perf.data
 /perf.data.old
-web/
+web/rasterizer.js
+web/rasterizer.wasm
