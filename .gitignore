@@ -5,3 +5,4 @@ compile_commands.json
 .to_do
 /perf.data
 /perf.data.old
+web/
