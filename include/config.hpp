@@ -12,13 +12,8 @@ inline constexpr float AMBIENT{0.2f};
 inline constexpr std::size_t CHANNEL_VAL{255};
 inline constexpr float CHANNEL_VAL_F{255.0f};
 
-#ifdef __EMSCRIPTEN__
-inline constexpr int WIDTH{1280};
-inline constexpr int HEIGHT{720};
-#else
 inline constexpr int WIDTH{1920};
 inline constexpr int HEIGHT{1080};
-#endif
 inline constexpr float ASPECT{static_cast<float>(WIDTH) / HEIGHT};
 
 inline constexpr float FOV{std::numbers::pi_v<float> / 2.0f};
