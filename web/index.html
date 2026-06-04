@@ -4,39 +4,23 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Abhay's Rasterizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="styles.css" />
-    <script>
-      (function () {
-        if (localStorage.getItem("theme") === "sun") {
-          document.documentElement.setAttribute("data-theme", "sun");
-        }
-      })();
-    </script>
   </head>
   <body>
     <button
       type="button"
-      id="theme-toggle"
-      class="theme-toggle"
-      aria-label="Switch to light mode"
-      title="Switch to light mode"
+      id="help-toggle"
+      class="help-toggle"
+      aria-label="How to interact"
+      title="How to interact"
     >
-      <svg class="theme-icon theme-icon--sun" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-        <circle cx="12" cy="12" r="5" fill="currentColor" />
-        <g stroke="currentColor" stroke-width="2" stroke-linecap="round">
-          <line x1="12" y1="1" x2="12" y2="4" />
-          <line x1="12" y1="20" x2="12" y2="23" />
-          <line x1="4.22" y1="4.22" x2="6.34" y2="6.34" />
-          <line x1="17.66" y1="17.66" x2="19.78" y2="19.78" />
-          <line x1="1" y1="12" x2="4" y2="12" />
-          <line x1="20" y1="12" x2="23" y2="12" />
-          <line x1="4.22" y1="19.78" x2="6.34" y2="17.66" />
-          <line x1="17.66" y1="6.34" x2="19.78" y2="4.22" />
-        </g>
-      </svg>
-      <svg class="theme-icon theme-icon--moon" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-        <path fill="currentColor" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-      </svg>
+      ?
     </button>
 
     <div class="page">
@@ -53,11 +37,13 @@
       </div>
 
       <section class="controls-panel" aria-label="Viewer controls">
-        <div class="controls-bar">
-          <div class="controls-cell controls-cell--pickers">
-            <div class="controls-pair">
-              <label class="controls-label" for="model-select">Model</label>
-              <select id="model-select" class="controls-select" aria-label="Model">
+        <div class="ctrl-row">
+          <span class="ctrl-heading">Scene</span>
+          <span class="ctrl-vrule" aria-hidden="true"></span>
+          <div class="ctrl-body">
+            <div class="ctrl-field">
+              <label for="model-select">Model</label>
+              <select id="model-select" aria-label="Model">
                 <option value="0" selected>Venus</option>
                 <option value="1">Spaceship</option>
                 <option value="2">Skull</option>
@@ -66,58 +52,40 @@
                 <option value="5">User Upload</option>
               </select>
             </div>
-            <div class="controls-pair">
-              <label class="controls-label" for="mode-select">Render Mode</label>
-              <select id="mode-select" class="controls-select" aria-label="Render Mode">
+            <div class="ctrl-field">
+              <label for="mode-select">Render Mode</label>
+              <select id="mode-select" aria-label="Render Mode">
                 <option value="0">Wireframe</option>
                 <option value="1">Flat</option>
                 <option value="2">Gouraud</option>
-                <option value="3" selected>Phong ⭐</option>
+                <option value="3" selected>Phong</option>
               </select>
             </div>
           </div>
-
-          <div class="controls-cell">
-            <label class="controls-label" for="light-slider">Light Angle</label>
-            <input
-              id="light-slider"
-              class="controls-range"
-              type="range"
-              min="0"
-              max="6.28"
-              step="0.01"
-              value="0"
-              aria-label="Light direction angle"
-            />
-            <span id="light-value" class="controls-light-value">0.00 rad</span>
-          </div>
-
-          <div class="controls-cell">
-            <button type="button" id="upload-btn">Upload Model</button>
-          </div>
+          <button type="button" id="upload-btn" class="ctrl-action">Upload Model</button>
         </div>
-      </section>
 
-      <section class="info-section" id="controls">
-        <h2>How to interact</h2>
-        <ul>
-          <li><strong>Rotate:</strong> click and drag on the canvas</li>
-          <li><strong>Zoom:</strong> mouse wheel (or <kbd>W</kbd> / <kbd>S</kbd> when focused)</li>
-          <li><strong>Pan camera:</strong> <kbd>A</kbd> <kbd>D</kbd> <kbd>R</kbd> <kbd>F</kbd></li>
-          <li><strong>Move target:</strong> <kbd>J</kbd> <kbd>K</kbd> <kbd>O</kbd> <kbd>L</kbd></li>
-          <li><strong>Models:</strong> use the dropdown above (keyboard <kbd>1</kbd>–<kbd>5</kbd> still works)</li>
-          <li><strong>Render modes:</strong> use the dropdown (<kbd>F1</kbd>–<kbd>F4</kbd> on desktop)</li>
-        </ul>
-        <p id="mode-blurb" class="mode-blurb"></p>
-      </section>
-
-      <section class="info-section">
-        <h2>About</h2>
-        <p>
-          This is a from-scratch CPU rasterizer written in C++: perspective projection,
-          depth buffering, back-face culling, OBJ/MTL loading, and wireframe, flat,
-          Gouraud, and Phong shading. The demo runs in the browser via Emscripten and SDL3.
-        </p>
+        <div class="ctrl-row">
+          <span class="ctrl-heading">View</span>
+          <span class="ctrl-vrule" aria-hidden="true"></span>
+          <div class="ctrl-body">
+            <div class="ctrl-field ctrl-field--slider">
+              <label for="light-slider">Light Angle</label>
+              <input
+                id="light-slider"
+                class="ctrl-range"
+                type="range"
+                min="0"
+                max="6.283185307179586"
+                step="0.01"
+                value="0"
+                aria-label="Light direction angle"
+              />
+              <span id="light-value" class="ctrl-value">0°</span>
+            </div>
+          </div>
+          <button type="button" id="overlay-toggle-btn" class="ctrl-action">Toggle Overlay</button>
+        </div>
       </section>
 
       <footer class="site-footer">

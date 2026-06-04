@@ -1,61 +1,49 @@
 (function () {
-  const THEME_KEY = "theme";
-  const themeToggle = document.getElementById("theme-toggle");
   const modelSelect = document.getElementById("model-select");
   const modeSelect = document.getElementById("mode-select");
   const lightSlider = document.getElementById("light-slider");
   const lightValue = document.getElementById("light-value");
+  const overlayToggleBtn = document.getElementById("overlay-toggle-btn");
   const uploadBtn = document.getElementById("upload-btn");
   const uploadModal = document.getElementById("upload-modal");
   const uploadCancel = document.getElementById("upload-cancel");
   const uploadForm = document.getElementById("upload-form");
   const loadStatus = document.getElementById("load-status");
-  const modeBlurb = document.getElementById("mode-blurb");
 
-  const modeBlurbs = {
-    0: "Wireframe draws triangle edges only — useful for inspecting mesh topology.",
-    1: "Flat shading uses one normal per face, giving a faceted look.",
-    2: "Gouraud shading interpolates vertex lighting across each triangle.",
-    3: "Phong shading interpolates normals and computes specular highlights per pixel.",
-  };
+  const RAD_TO_DEG = 180 / Math.PI;
+  const LIGHT_ANGLE_MAX = 2 * Math.PI;
 
-  function getTheme() {
-    return document.documentElement.getAttribute("data-theme") === "sun"
-      ? "sun"
-      : "moon";
-  }
-
-  let pendingDayMode = null;
-
-  function setTheme(theme) {
-    const isSun = theme === "sun";
-    if (isSun) {
-      document.documentElement.setAttribute("data-theme", "sun");
-    } else {
-      document.documentElement.removeAttribute("data-theme");
+  function wrapLightRad(rad) {
+    if (!Number.isFinite(rad)) {
+      return 0;
     }
-    localStorage.setItem(THEME_KEY, isSun ? "sun" : "moon");
-    const label = isSun ? "Switch to dark mode" : "Switch to light mode";
-    themeToggle.setAttribute("aria-label", label);
-    themeToggle.title = label;
-    syncThemeToWasm();
-  }
-
-  function syncThemeToWasm() {
-    const day = getTheme() === "sun" ? 1 : 0;
-    if (typeof Module !== "undefined" && typeof Module._set_day_mode === "function") {
-      Module._set_day_mode(day);
-      pendingDayMode = null;
-      return;
+    if (rad < 0) {
+      rad = ((rad % LIGHT_ANGLE_MAX) + LIGHT_ANGLE_MAX) % LIGHT_ANGLE_MAX;
+      return rad;
     }
-    pendingDayMode = day;
+    if (rad > LIGHT_ANGLE_MAX) {
+      rad = rad % LIGHT_ANGLE_MAX;
+      if (rad < 0) {
+        rad += LIGHT_ANGLE_MAX;
+      }
+    }
+    return rad;
   }
 
-  themeToggle.addEventListener("click", () => {
-    setTheme(getTheme() === "moon" ? "sun" : "moon");
-  });
+  function formatLightDeg(rad) {
+    const wrapped = wrapLightRad(rad);
+    if (wrapped <= 0.0001) {
+      return 0;
+    }
+    if (Math.abs(wrapped - LIGHT_ANGLE_MAX) < 0.0001) {
+      return 360;
+    }
+    return Math.round(wrapped * RAD_TO_DEG);
+  }
 
-  setTheme(localStorage.getItem(THEME_KEY) === "sun" ? "sun" : "moon");
+  function setLightSlider(rad) {
+    lightSlider.value = String(wrapLightRad(rad));
+  }
 
   function setLoadStatus(text, hidden) {
     loadStatus.textContent = text;
@@ -76,20 +64,30 @@
   function syncUiToWasm() {
     callWasm("_set_model", Number(modelSelect.value));
     callWasm("_set_render_mode", Number(modeSelect.value));
-    callWasm("_set_light_angle", Number(lightSlider.value));
-    syncThemeToWasm();
+    callWasm("_set_light_angle", wrapLightRad(Number(lightSlider.value)));
     updateLightLabel();
-    updateModeBlurb();
   }
 
   function updateLightLabel() {
-    const v = Number(lightSlider.value);
-    lightValue.textContent = `${v.toFixed(2)} rad`;
+    lightValue.textContent = `${formatLightDeg(Number(lightSlider.value))}°`;
   }
 
-  function updateModeBlurb() {
-    modeBlurb.textContent = modeBlurbs[modeSelect.value] ?? "";
+  function syncModelSelect(id) {
+    document.getElementById("model-select").value = String(id);
   }
+
+  function syncModeSelect(mode) {
+    document.getElementById("mode-select").value = String(mode);
+  }
+
+  function syncLightAngle(rad) {
+    setLightSlider(rad);
+    updateLightLabel();
+  }
+
+  window.syncModelSelect = syncModelSelect;
+  window.syncModeSelect = syncModeSelect;
+  window.syncLightAngle = syncLightAngle;
 
   function openModal() {
     uploadModal.classList.remove("hidden");
@@ -106,12 +104,19 @@
 
   modeSelect.addEventListener("change", () => {
     callWasm("_set_render_mode", Number(modeSelect.value));
-    updateModeBlurb();
   });
 
+  lightSlider.max = String(LIGHT_ANGLE_MAX);
+
   lightSlider.addEventListener("input", () => {
-    callWasm("_set_light_angle", Number(lightSlider.value));
+    const rad = wrapLightRad(Number(lightSlider.value));
+    setLightSlider(rad);
+    callWasm("_set_light_angle", rad);
     updateLightLabel();
+  });
+
+  overlayToggleBtn.addEventListener("click", () => {
+    callWasm("_toggle_overlay");
   });
 
   uploadBtn.addEventListener("click", openModal);
@@ -133,12 +138,14 @@
   });
 
   updateLightLabel();
-  updateModeBlurb();
 
   const prevOnRuntimeInitialized = window.Module?.onRuntimeInitialized;
 
+  const canvas = document.getElementById("canvas");
+  canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+
   window.Module = {
-    canvas: document.getElementById("canvas"),
+    canvas,
     setStatus(text) {
       if (text) {
         setLoadStatus(text, false);
@@ -151,10 +158,6 @@
         prevOnRuntimeInitialized();
       }
       syncUiToWasm();
-      if (pendingDayMode !== null && typeof Module._set_day_mode === "function") {
-        Module._set_day_mode(pendingDayMode);
-        pendingDayMode = null;
-      }
       setLoadStatus("", true);
     },
   };
