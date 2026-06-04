@@ -7,7 +7,7 @@
 #include <limits>
 #include <sstream>
 
-static constexpr float TARGET_SIZE = 20.0f;
+static constexpr float TARGET_SIZE = 25.0f;
 
 static void push_pos(std::vector<std::string> &tokens,
                      std::vector<Vec4> &pos_cache) {
