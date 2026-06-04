@@ -14,7 +14,9 @@ build:
     ln -sf build/compile_commands.json .
 
 web:
-    ./build-web.sh
+    if [ ! -f "web/rasterizer.js" ]; then \
+    ./build-web.sh; \
+    fi
 
 debug: build
     gdb ./build/main
