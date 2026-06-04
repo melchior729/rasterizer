@@ -1,3 +1,4 @@
+#include <SDL3/SDL_log.h>
 #define SDL_MAIN_USE_CALLBACKS 1
 
 #include "camera.hpp"
@@ -33,6 +34,9 @@ static bool user_mesh_loaded{false};
 
 static constexpr const char *mode_names[] = {"Wireframe", "Flat", "Gouraud",
                                              "Phong"};
+
+static constexpr const char GRID_PATH[]{"textures/grid.png"};
+
 static float angle{0.0f};
 
 struct SDL_Deleter {
@@ -45,8 +49,10 @@ struct AppState {
   std::unique_ptr<SDL_Window, SDL_Deleter> window{};
   std::unique_ptr<SDL_Renderer, SDL_Deleter> renderer{};
   std::unique_ptr<SDL_Texture, SDL_Deleter> texture{};
+  std::unique_ptr<SDL_Texture, SDL_Deleter> grid_texture{};
   std::unique_ptr<FrameBuffer> buffer{};
   Camera camera;
+  Texture grid_tex;
   SceneObject *object;
   SceneConfig config{{0.577f, 0.577f, 0.557f}, RenderMode::Phong};
   uint64_t last_time{};
@@ -77,10 +83,22 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
       SDL_CreateTexture(raw_renderer, SDL_PIXELFORMAT_ARGB8888,
                         SDL_TEXTUREACCESS_STREAMING, WIDTH, HEIGHT);
 
+  state->grid_tex = Texture::load(GRID_PATH);
+  SDL_Texture *raw_grid = SDL_CreateTexture(
+      raw_renderer, SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC,
+      state->grid_tex.width, state->grid_tex.height);
+  SDL_UpdateTexture(raw_grid, nullptr, state->grid_tex.pixels.data(),
+                    static_cast<int>(state->grid_tex.width) *
+                        static_cast<int>(sizeof(Color)));
+  if (!raw_grid) {
+    SDL_Log("Grid texture failed: %s", SDL_GetError());
+  }
+
   state->window.reset(raw_window);
   state->renderer.reset(raw_renderer);
   state->texture.reset(raw_texture);
   state->buffer = std::make_unique<FrameBuffer>();
+  state->grid_texture.reset(raw_grid);
   state->object = &venus;
 
   SDL_SetRenderVSync(state->renderer.get(), 0);
@@ -298,6 +316,11 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_SetTextureScaleMode(state->texture.get(), SDL_SCALEMODE_NEAREST);
 #endif
 
+  if (state->grid_texture.get()) {
+    SDL_RenderTexture(state->renderer.get(), state->grid_texture.get(), nullptr,
+                      nullptr);
+  }
+
   SDL_RenderTexture(state->renderer.get(), state->texture.get(), nullptr,
                     nullptr);
 
@@ -319,6 +342,7 @@ void SDL_AppQuit(void *appstate, [[maybe_unused]] SDL_AppResult result) {
 
 #include <emscripten.h>
 
+// clang-format off
 void web_sync_model_dropdown(int id) {
   EM_ASM(
       {
@@ -448,5 +472,7 @@ int web_has_user_mesh() { return user_mesh_loaded ? 1 : 0; }
 void web_reload_user_mesh() {
   // when loading user models from memfs
 }
+
+// clang-format on
 
 #endif
