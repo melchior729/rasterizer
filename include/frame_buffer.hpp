@@ -5,7 +5,7 @@
 #include <limits>
 
 struct FrameBuffer {
-  static constexpr Color BG{0xFF, 0x13, 0x15, 0x1A};
+  static constexpr Color BG{0xC0, 0x13, 0x15, 0x1A};
 
   std::array<Color, WIDTH * HEIGHT> pixels{};
   std::array<float, WIDTH * HEIGHT> depth{};
