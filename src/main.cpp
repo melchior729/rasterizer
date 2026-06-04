@@ -50,6 +50,7 @@ struct AppState {
   SceneObject *object;
   SceneConfig config{{0.577f, 0.577f, 0.557f}, RenderMode::Phong};
   uint64_t last_time{};
+  bool show_overlay{false};
 };
 
 #ifdef __EMSCRIPTEN__
@@ -86,7 +87,7 @@ SDL_AppResult SDL_AppInit(void **appstate, [[maybe_unused]] int argc,
   state->last_time = SDL_GetPerformanceCounter();
   *appstate = state.release();
 
-#ifdef __emscripten__
+#ifdef __EMSCRIPTEN__
   web_bind_app_state(*appstate);
 #endif
 
@@ -102,6 +103,13 @@ void apply_rotation(AppState *state, float x, float y, float z) {
   state->object->r.y += y;
   state->object->r.z += z;
   state->object->update_matrix();
+}
+
+static void apply_pan(Camera &camera, float dx, float dy) {
+  camera.pos.x += dx;
+  camera.pos.y += dy;
+  camera.target.x += dx;
+  camera.target.y += dy;
 }
 
 void set_light_angle(AppState *state, float angle) {
@@ -130,29 +138,44 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 
   if (event->type == SDL_EVENT_MOUSE_MOTION) {
     if (event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
-      auto sens{0.005f};
-      apply_rotation(state, event->motion.yrel * sens,
-                     event->motion.xrel * sens, 0.0f);
+      apply_rotation(state, event->motion.yrel * input_sens.rotate,
+                     event->motion.xrel * input_sens.rotate, 0.0f);
+    }
+    if (event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) {
+      apply_pan(state->camera, -event->motion.xrel * input_sens.pan,
+                event->motion.yrel * input_sens.pan);
     }
   }
 
   if (event->type == SDL_EVENT_MOUSE_WHEEL) {
-    state->camera.pos.z -= event->wheel.y * 0.5f;
+    state->camera.pos.z -= event->wheel.y * input_sens.zoom;
   }
 
   if (event->type == SDL_EVENT_KEY_DOWN) {
     switch (event->key.key) {
     case SDLK_F1:
       set_render_mode(state, 0);
+#ifdef __EMSCRIPTEN__
+      web_sync_mode_dropdown(0);
+#endif
       break;
     case SDLK_F2:
       set_render_mode(state, 1);
+#ifdef __EMSCRIPTEN__
+      web_sync_mode_dropdown(1);
+#endif
       break;
     case SDLK_F3:
       set_render_mode(state, 2);
+#ifdef __EMSCRIPTEN__
+      web_sync_mode_dropdown(2);
+#endif
       break;
     case SDLK_F4:
       set_render_mode(state, 3);
+#ifdef __EMSCRIPTEN__
+      web_sync_mode_dropdown(3);
+#endif
       break;
     case SDLK_W:
       state->camera.pos.z -= 0.2;
@@ -186,22 +209,40 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       break;
     case SDLK_1:
       draw_venus(state);
+#ifdef __EMSCRIPTEN__
+      web_sync_model_dropdown(0);
+#endif
       break;
     case SDLK_2:
       draw_ship(state);
+#ifdef __EMSCRIPTEN__
+      web_sync_model_dropdown(1);
+#endif
       break;
     case SDLK_3:
       draw_skull(state);
+#ifdef __EMSCRIPTEN__
+      web_sync_model_dropdown(2);
+#endif
       break;
     case SDLK_4:
       draw_turtle(state);
+#ifdef __EMSCRIPTEN__
+      web_sync_model_dropdown(3);
+#endif
       break;
     case SDLK_5:
       draw_plane(state);
+#ifdef __EMSCRIPTEN__
+      web_sync_model_dropdown(4);
+#endif
       break;
     case SDLK_N:
-      angle += 0.1f;
+      angle = wrap_light_angle(angle + input_sens.light_step);
       set_light_angle(state, angle);
+#ifdef __EMSCRIPTEN__
+      web_sync_light_angle(angle);
+#endif
       break;
     }
   }
@@ -210,18 +251,26 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
 }
 
 static void draw_overlay(AppState *state, int faces) {
-
   uint64_t now{SDL_GetPerformanceCounter()};
   double frame_ms = (double)(now - state->last_time) * 1000 /
                     static_cast<double>(SDL_GetPerformanceFrequency());
   state->last_time = now;
-  char line[64];
-  const char *mode_str = mode_names[static_cast<int>(state->config.mode)];
 
+  if (!state->show_overlay) {
+    return;
+  }
+
+  char line[64];
+#ifdef __EMSCRIPTEN__
+  SDL_snprintf(line, sizeof(line), "%.2f ms | %.0f fps | %d faces drawn",
+               frame_ms, 1000.0 / frame_ms, faces);
+#else
+  const char *mode_str = mode_names[static_cast<int>(state->config.mode)];
   SDL_snprintf(line, sizeof(line),
                "%.2f ms | %.0f fps | %d faces drawn | Method: %s", frame_ms,
                1000.0 / frame_ms, faces, mode_str);
-  SDL_SetRenderDrawColor(state->renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+#endif
+  SDL_SetRenderDrawColor(state->renderer.get(), 0xFF, 0xC8, 0xCC, 0xD4);
 #ifdef __EMSCRIPTEN__
   constexpr float overlay_scale{1.0f};
 #else
@@ -267,6 +316,53 @@ void SDL_AppQuit(void *appstate, [[maybe_unused]] SDL_AppResult result) {
 }
 
 #ifdef __EMSCRIPTEN__
+
+#include <emscripten.h>
+
+void web_sync_model_dropdown(int id) {
+  EM_ASM(
+      {
+        if (typeof window.syncModelSelect === "function") {
+          window.syncModelSelect($0);
+        } else {
+          var el = document.getElementById("model-select");
+          if (el) {
+            el.value = String($0);
+          }
+        }
+      },
+      id);
+}
+
+void web_sync_mode_dropdown(int mode) {
+  EM_ASM(
+      {
+        if (typeof window.syncModeSelect === "function") {
+          window.syncModeSelect($0);
+        } else {
+          var el = document.getElementById("mode-select");
+          if (el) {
+            el.value = String($0);
+          }
+        }
+      },
+      mode);
+}
+
+void web_sync_light_angle(float light_angle) {
+  EM_ASM(
+      {
+        if (typeof window.syncLightAngle === "function") {
+          window.syncLightAngle($0);
+        } else {
+          var el = document.getElementById("light-slider");
+          if (el) {
+            el.value = String($0);
+          }
+        }
+      },
+      light_angle);
+}
 
 void web_bind_app_state(void *appstate) {
   g_app_state = static_cast<AppState *>(appstate);
@@ -320,17 +416,32 @@ void web_set_light_angle(float light_angle) {
   if (!g_app_state) {
     return;
   }
-  angle = light_angle;
-  set_light_angle(g_app_state, light_angle);
+  angle = wrap_light_angle(light_angle);
+  set_light_angle(g_app_state, angle);
 }
 
-void web_set_day_mode(int is_day) {
+void web_toggle_overlay() {
   if (!g_app_state) {
     return;
   }
-  g_app_state->buffer->set_clear_color(is_day ? BG_DAY : BG);
-  g_app_state->buffer->clear();
+  g_app_state->show_overlay = !g_app_state->show_overlay;
 }
+
+void web_set_rotate_sens(float v) { set_rotate_sens(v); }
+
+void web_set_pan_sens(float v) { set_pan_sens(v); }
+
+void web_set_zoom_sens(float v) { set_zoom_sens(v); }
+
+void web_set_light_step(float v) { set_light_step(v); }
+
+float web_get_rotate_sens() { return get_rotate_sens(); }
+
+float web_get_pan_sens() { return get_pan_sens(); }
+
+float web_get_zoom_sens() { return get_zoom_sens(); }
+
+float web_get_light_step() { return get_light_step(); }
 
 int web_has_user_mesh() { return user_mesh_loaded ? 1 : 0; }
 
