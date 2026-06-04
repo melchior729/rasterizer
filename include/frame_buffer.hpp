@@ -5,13 +5,13 @@
 #include <limits>
 
 struct FrameBuffer {
+  static constexpr Color BG{0xFF, 0x13, 0x15, 0x1A};
+
   std::array<Color, WIDTH * HEIGHT> pixels{};
   std::array<float, WIDTH * HEIGHT> depth{};
   Color clear_color{BG};
 
   FrameBuffer() { clear(); }
-
-  void set_clear_color(Color color) { clear_color = color; }
 
   void set(int x, int y, float z, Color color) {
     if (out_of_bounds(x, y)) {
