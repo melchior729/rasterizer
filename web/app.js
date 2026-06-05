@@ -48,8 +48,17 @@
     return Math.round(wrapped * RAD_TO_DEG);
   }
 
+  function updateRangeFill(slider) {
+    const min = Number(slider.min);
+    const max = Number(slider.max);
+    const val = Number(slider.value);
+    const pct = max > min ? ((val - min) / (max - min)) * 100 : 0;
+    slider.style.setProperty("--range-fill", `${pct}%`);
+  }
+
   function setLightSlider(rad) {
     lightSlider.value = String(wrapLightRad(rad));
+    updateRangeFill(lightSlider);
   }
 
   function setLoadStatus(text, hidden) {
@@ -362,6 +371,7 @@
   });
 
   updateLightLabel();
+  updateRangeFill(lightSlider);
 
   const prevOnRuntimeInitialized = window.Module?.onRuntimeInitialized;
 
