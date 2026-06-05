@@ -330,6 +330,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       web_sync_light_angle(angle);
 #endif
       break;
+    case SDLK_I:
+      state->show_overlay = !state->show_overlay;
+      break;
     }
   }
 
