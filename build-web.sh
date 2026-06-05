@@ -1,8 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-mkdir -p web
-
 emcc src/main.cpp src/math.cpp src/parser.cpp src/rasterizer.cpp src/scene.cpp \
   src/texture.cpp src/stb_impl.cpp src/web_api.cpp \
   -Iinclude \
