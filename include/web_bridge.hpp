@@ -14,6 +14,8 @@ void web_sync_light_angle(float angle);
 
 void web_toggle_overlay();
 
+void web_toggle_swap_mouse();
+
 void web_sync_model_dropdown(int id);
 
 void web_sync_mode_dropdown(int mode);

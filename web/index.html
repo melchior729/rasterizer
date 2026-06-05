@@ -44,11 +44,11 @@
             <div class="ctrl-field">
               <label for="model-select">Model</label>
               <select id="model-select" aria-label="Model">
-                <option value="0" selected>Venus</option>
-                <option value="1">Spaceship</option>
-                <option value="2">Skull</option>
-                <option value="3">Terrorpin</option>
-                <option value="4">Plane</option>
+                <option value="0" selected>Venus de Milo</option>
+                <option value="1">2099 Spacecraft</option>
+                <option value="2">Male Skull</option>
+                <option value="3">Alligator Snapper</option>
+                <option value="4">Messerschmitt Bf 109</option>
                 <option value="5">User Upload</option>
               </select>
             </div>
@@ -58,7 +58,7 @@
                 <option value="0">Wireframe</option>
                 <option value="1">Flat</option>
                 <option value="2">Gouraud</option>
-                <option value="3" selected>Phong</option>
+                <option value="3" selected>Blinn-Phong</option>
               </select>
             </div>
           </div>
@@ -84,7 +84,37 @@
               <span id="light-value" class="ctrl-value">0°</span>
             </div>
           </div>
-          <button type="button" id="overlay-toggle-btn" class="ctrl-action">Toggle Overlay</button>
+          <div class="ctrl-actions">
+            <button
+              type="button"
+              id="zoom-in-btn"
+              class="ctrl-action ctrl-action--icon ctrl-action--zoom"
+              aria-label="Zoom in"
+              title="Zoom in"
+            >
+              +
+            </button>
+            <button
+              type="button"
+              id="zoom-out-btn"
+              class="ctrl-action ctrl-action--icon ctrl-action--zoom"
+              aria-label="Zoom out"
+              title="Zoom out"
+            >
+              −
+            </button>
+            <button
+              type="button"
+              id="hand-btn"
+              class="ctrl-action ctrl-action--icon"
+              aria-label="Hand tool"
+              aria-pressed="false"
+              title="Hand tool — tap to pan with left drag"
+            >
+              🖐
+            </button>
+            <button type="button" id="overlay-toggle-btn" class="ctrl-action">Toggle Overlay</button>
+          </div>
         </div>
       </section>
 
@@ -117,6 +147,67 @@
             <button type="submit">Upload</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div id="help-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+      <div class="modal modal--controls">
+        <div class="modal-header">
+          <h3 id="help-title">Controls</h3>
+          <button type="button" class="modal-close" id="help-close" aria-label="Close">×</button>
+        </div>
+
+        <table class="controls-table">
+          <thead>
+            <tr>
+              <th scope="col">Action</th>
+              <th scope="col">Pointer</th>
+              <th scope="col">Keyboard</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Rotate</td>
+              <td>Left drag</td>
+              <td>T · Y · U <span class="controls-hint">(axis lock)</span></td>
+            </tr>
+            <tr>
+              <td>Pan</td>
+              <td>Right drag <span class="controls-hint">(left if 🖐)</span></td>
+              <td>J · K · O · L</td>
+            </tr>
+            <tr>
+              <td>Zoom</td>
+              <td>+ / − buttons</td>
+              <td>W · S</td>
+            </tr>
+            <tr>
+              <td>Move Vertical</td>
+              <td>Pan drag</td>
+              <td>R · F</td>
+            </tr>
+            <tr>
+              <td>Move Horizontal</td>
+              <td>Pan drag</td>
+              <td>A · D</td>
+            </tr>
+            <tr>
+              <td>Light Angle</td>
+              <td>Slider</td>
+              <td>N</td>
+            </tr>
+            <tr>
+              <td>Change Model</td>
+              <td>Dropdown</td>
+              <td>1 – 5</td>
+            </tr>
+            <tr>
+              <td>Render Mode</td>
+              <td>Dropdown</td>
+              <td>F1 – F4</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 

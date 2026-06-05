@@ -55,6 +55,8 @@ struct InputSens {
   float light_step{0.1f};
 };
 
+inline constexpr float KEY_ROTATE_STEP{0.05f};
+
 inline InputSens input_sens{};
 
 inline void set_rotate_sens(float v) { input_sens.rotate = v; }

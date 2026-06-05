@@ -39,6 +39,10 @@ static constexpr const char GRID_PATH[]{"textures/grid.png"};
 
 static float angle{0.0f};
 
+static bool rot_lock_x{false};
+static bool rot_lock_y{false};
+static bool rot_lock_z{false};
+
 struct SDL_Deleter {
   void operator()(SDL_Window *w) const { SDL_DestroyWindow(w); }
   void operator()(SDL_Renderer *r) const { SDL_DestroyRenderer(r); }
@@ -57,6 +61,7 @@ struct AppState {
   SceneConfig config{{0.577f, 0.577f, 0.557f}, RenderMode::Phong};
   uint64_t last_time{};
   bool show_overlay{false};
+  bool swap_mouse_buttons{false};
 };
 
 #ifdef __EMSCRIPTEN__
@@ -123,6 +128,21 @@ void apply_rotation(AppState *state, float x, float y, float z) {
   state->object->update_matrix();
 }
 
+static void apply_mouse_rotation(AppState *state, float xrel, float yrel) {
+  const float dx{xrel * input_sens.rotate};
+  const float dy{yrel * input_sens.rotate};
+
+  if (rot_lock_x) {
+    apply_rotation(state, dy, 0.0f, 0.0f);
+  } else if (rot_lock_y) {
+    apply_rotation(state, 0.0f, dx, 0.0f);
+  } else if (rot_lock_z) {
+    apply_rotation(state, 0.0f, 0.0f, dx);
+  } else {
+    apply_rotation(state, dy, dx, 0.0f);
+  }
+}
+
 static void apply_pan(Camera &camera, float dx, float dy) {
   camera.pos.x += dx;
   camera.pos.y += dy;
@@ -155,18 +175,48 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
   }
 
   if (event->type == SDL_EVENT_MOUSE_MOTION) {
-    if (event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) {
-      apply_rotation(state, event->motion.yrel * input_sens.rotate,
-                     event->motion.xrel * input_sens.rotate, 0.0f);
-    }
-    if (event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) {
-      apply_pan(state->camera, -event->motion.xrel * input_sens.pan,
-                event->motion.yrel * input_sens.pan);
+    const bool left_down{
+        (event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_LEFT)) != 0};
+    const bool right_down{
+        (event->motion.state & SDL_BUTTON_MASK(SDL_BUTTON_RIGHT)) != 0};
+
+    if (state->swap_mouse_buttons) {
+      if (left_down) {
+        apply_pan(state->camera, -event->motion.xrel * input_sens.pan,
+                  event->motion.yrel * input_sens.pan);
+      }
+      if (right_down) {
+        apply_mouse_rotation(state, event->motion.xrel, event->motion.yrel);
+      }
+    } else {
+      if (left_down) {
+        apply_mouse_rotation(state, event->motion.xrel, event->motion.yrel);
+      }
+      if (right_down) {
+        apply_pan(state->camera, -event->motion.xrel * input_sens.pan,
+                  event->motion.yrel * input_sens.pan);
+      }
     }
   }
 
   if (event->type == SDL_EVENT_MOUSE_WHEEL) {
     state->camera.pos.z -= event->wheel.y * input_sens.zoom;
+  }
+
+  if (event->type == SDL_EVENT_KEY_UP) {
+    switch (event->key.key) {
+    case SDLK_T:
+      rot_lock_x = false;
+      break;
+    case SDLK_Y:
+      rot_lock_y = false;
+      break;
+    case SDLK_U:
+      rot_lock_z = false;
+      break;
+    default:
+      break;
+    }
   }
 
   if (event->type == SDL_EVENT_KEY_DOWN) {
@@ -220,10 +270,28 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
       state->camera.target.x += 10;
       break;
     case SDLK_O:
-      state->camera.target.y -= 10;
+      state->camera.target.y += 10;
       break;
     case SDLK_L:
-      state->camera.target.y += 10;
+      state->camera.target.y -= 10;
+      break;
+    case SDLK_T:
+      rot_lock_x = true;
+      rot_lock_y = false;
+      rot_lock_z = false;
+      apply_rotation(state, KEY_ROTATE_STEP, 0.0f, 0.0f);
+      break;
+    case SDLK_Y:
+      rot_lock_x = false;
+      rot_lock_y = true;
+      rot_lock_z = false;
+      apply_rotation(state, 0.0f, KEY_ROTATE_STEP, 0.0f);
+      break;
+    case SDLK_U:
+      rot_lock_x = false;
+      rot_lock_y = false;
+      rot_lock_z = true;
+      apply_rotation(state, 0.0f, 0.0f, KEY_ROTATE_STEP);
       break;
     case SDLK_1:
       draw_venus(state);
@@ -288,7 +356,8 @@ static void draw_overlay(AppState *state, int faces) {
                "%.2f ms | %.0f fps | %d faces drawn | Method: %s", frame_ms,
                1000.0 / frame_ms, faces, mode_str);
 #endif
-  SDL_SetRenderDrawColor(state->renderer.get(), 0xFF, 0xC8, 0xCC, 0xD4);
+  SDL_SetRenderDrawColor(state->renderer.get(), WHITE.r(), WHITE.g(), WHITE.b(),
+                         WHITE.a());
 #ifdef __EMSCRIPTEN__
   constexpr float overlay_scale{1.0f};
 #else
@@ -309,6 +378,8 @@ SDL_AppResult SDL_AppIterate(void *appstate) {
   SDL_UpdateTexture(state->texture.get(), nullptr,
                     state->buffer.get()->pixels.data(), WIDTH * sizeof(Color));
 
+  SDL_SetRenderDrawColor(state->renderer.get(), BLACK.r(), BLACK.g(), BLACK.b(),
+                         BLACK.a());
   SDL_RenderClear(state->renderer.get());
 #ifdef __EMSCRIPTEN__
   SDL_SetTextureScaleMode(state->texture.get(), SDL_SCALEMODE_LINEAR);
@@ -449,6 +520,13 @@ void web_toggle_overlay() {
     return;
   }
   g_app_state->show_overlay = !g_app_state->show_overlay;
+}
+
+void web_toggle_swap_mouse() {
+  if (!g_app_state) {
+    return;
+  }
+  g_app_state->swap_mouse_buttons = !g_app_state->swap_mouse_buttons;
 }
 
 void web_set_rotate_sens(float v) { set_rotate_sens(v); }

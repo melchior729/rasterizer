@@ -17,6 +17,8 @@ EMSCRIPTEN_KEEPALIVE void set_light_angle(float angle) {
 
 EMSCRIPTEN_KEEPALIVE void toggle_overlay() { web_toggle_overlay(); }
 
+EMSCRIPTEN_KEEPALIVE void toggle_swap_mouse() { web_toggle_swap_mouse(); }
+
 EMSCRIPTEN_KEEPALIVE void set_rotate_sens(float v) { web_set_rotate_sens(v); }
 
 EMSCRIPTEN_KEEPALIVE void set_pan_sens(float v) { web_set_pan_sens(v); }
