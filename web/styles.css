@@ -135,6 +135,10 @@ body {
   display: none;
 }
 
+.load-status--error {
+  color: var(--corner-active);
+}
+
 .controls-panel {
   width: 100%;
   max-width: 1280px;

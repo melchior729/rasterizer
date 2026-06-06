@@ -133,6 +133,15 @@
   function setLoadStatus(text, hidden) {
     loadStatus.textContent = text;
     loadStatus.classList.toggle("hidden", hidden);
+    if (hidden) {
+      loadStatus.classList.remove("load-status--error");
+    }
+  }
+
+  function setLoadFailure(text) {
+    loadStatus.textContent = text;
+    loadStatus.classList.remove("hidden");
+    loadStatus.classList.add("load-status--error");
   }
 
   function wasmReady() {
@@ -466,6 +475,7 @@
   window.sensitivityValues = sensitivityValues;
 
   const prevOnRuntimeInitialized = window.Module?.onRuntimeInitialized;
+  const prevOnAbort = window.Module?.onAbort;
 
   canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
@@ -484,6 +494,15 @@
       }
       syncUiToWasm();
       setLoadStatus("", true);
+    },
+    onAbort(reason) {
+      if (prevOnAbort) {
+        prevOnAbort(reason);
+      }
+      setLoadFailure(`Rasterizer failed: ${reason}`);
+    },
+    printErr(text) {
+      console.error(text);
     },
   };
 })();
