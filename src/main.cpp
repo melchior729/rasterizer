@@ -333,6 +333,9 @@ SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
     case SDLK_I:
       state->show_overlay = !state->show_overlay;
       break;
+    case SDLK_H:
+      state->camera.reset();
+      break;
     }
   }
 

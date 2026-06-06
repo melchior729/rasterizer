@@ -7,6 +7,12 @@ struct Camera {
   Vec3 target{0, 0, -1000};
   Vec3 up{0, 1, 0};
 
+  void reset() {
+    pos = {};
+    target = {0, 0, -1000};
+    up = {0, 1, 0};
+  }
+
   Mat4 view() const {
     assert(target != pos);
 
