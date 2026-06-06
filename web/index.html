@@ -15,6 +15,31 @@
   <body>
     <button
       type="button"
+      id="settings-toggle"
+      class="settings-toggle"
+      aria-label="Settings"
+      title="Settings"
+    >
+      <svg
+        class="settings-icon"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+        <path
+          d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.26.604.852.997 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"
+        />
+      </svg>
+    </button>
+
+    <button
+      type="button"
       id="help-toggle"
       class="help-toggle"
       aria-label="How to interact"
@@ -147,6 +172,66 @@
             <button type="submit">Upload</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div id="settings-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal modal--settings">
+        <div class="modal-header">
+          <h3 id="settings-title">Camera Sensitivity</h3>
+          <button type="button" class="modal-close" id="settings-close" aria-label="Close">×</button>
+        </div>
+
+        <div class="settings-fields">
+          <div class="field settings-field">
+            <div class="settings-field-row">
+              <label for="rotate-sens-slider">Rotate</label>
+              <input
+                id="rotate-sens-slider"
+                class="ctrl-range settings-range"
+                type="range"
+                min="1"
+                max="20"
+                step="1"
+                value="5"
+                aria-label="Rotate sensitivity"
+              />
+              <span id="rotate-sens-level" class="settings-level">5/20</span>
+            </div>
+          </div>
+          <div class="field settings-field">
+            <div class="settings-field-row">
+              <label for="pan-sens-slider">Pan</label>
+              <input
+                id="pan-sens-slider"
+                class="ctrl-range settings-range"
+                type="range"
+                min="1"
+                max="20"
+                step="1"
+                value="5"
+                aria-label="Pan sensitivity"
+              />
+              <span id="pan-sens-level" class="settings-level">5/20</span>
+            </div>
+          </div>
+          <div class="field settings-field">
+            <div class="settings-field-row">
+              <label for="zoom-sens-slider">Zoom</label>
+              <input
+                id="zoom-sens-slider"
+                class="ctrl-range settings-range"
+                type="range"
+                min="1"
+                max="20"
+                step="1"
+                value="10"
+                aria-label="Zoom sensitivity"
+              />
+              <span id="zoom-sens-level" class="settings-level">10/20</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 

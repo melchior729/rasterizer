@@ -40,9 +40,9 @@ body {
   transition: color 0.2s ease;
 }
 
-.help-toggle {
+.help-toggle,
+.settings-toggle {
   position: fixed;
-  right: 1rem;
   bottom: 1rem;
   z-index: 50;
   display: flex;
@@ -60,6 +60,19 @@ body {
   font-weight: 600;
   line-height: 1;
   transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+.help-toggle {
+  right: 1rem;
+}
+
+.settings-toggle {
+  left: 1rem;
+}
+
+.settings-icon {
+  width: 1.125rem;
+  height: 1.125rem;
 }
 
 .page {
@@ -592,29 +605,34 @@ button:hover {
   justify-content: center;
 }
 
-button.help-toggle {
+button.help-toggle,
+button.settings-toggle {
   background: var(--toggle-bg);
   border-color: var(--border);
   color: var(--cyan);
 }
 
-button.help-toggle:focus {
+button.help-toggle:focus,
+button.settings-toggle:focus {
   outline: none;
 }
 
-button.help-toggle:focus:not(:hover) {
+button.help-toggle:focus:not(:hover),
+button.settings-toggle:focus:not(:hover) {
   background: var(--toggle-bg);
   border-color: var(--border);
   color: var(--cyan);
 }
 
-button.help-toggle:hover {
+button.help-toggle:hover,
+button.settings-toggle:hover {
   background: rgba(163, 176, 188, 0.3);
   border-color: var(--border);
   color: var(--cyan);
 }
 
-button.help-toggle:active {
+button.help-toggle:active,
+button.settings-toggle:active {
   outline: none;
   background: var(--toggle-bg);
   border-color: var(--border);
@@ -715,6 +733,47 @@ button.secondary:hover {
   max-width: 34rem;
   max-height: min(90vh, 40rem);
   overflow-y: auto;
+}
+
+.modal--settings {
+  max-width: 28rem;
+}
+
+.settings-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.settings-field.field {
+  margin-bottom: 0.75rem;
+}
+
+.settings-field-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.settings-field label {
+  flex-shrink: 0;
+  width: 3.5rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+}
+
+.settings-range {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-level {
+  flex-shrink: 0;
+  min-width: 3.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-align: right;
 }
 
 .modal-header {

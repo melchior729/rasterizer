@@ -11,6 +11,9 @@
   const uploadModal = document.getElementById("upload-modal");
   const uploadCancel = document.getElementById("upload-cancel");
   const uploadForm = document.getElementById("upload-form");
+  const settingsToggle = document.getElementById("settings-toggle");
+  const settingsModal = document.getElementById("settings-modal");
+  const settingsClose = document.getElementById("settings-close");
   const helpToggle = document.getElementById("help-toggle");
   const helpModal = document.getElementById("help-modal");
   const helpClose = document.getElementById("help-close");
@@ -19,6 +22,36 @@
 
   const RAD_TO_DEG = 180 / Math.PI;
   const LIGHT_ANGLE_MAX = 2 * Math.PI;
+
+  const SENS_LEVEL_MIN = 1;
+  const SENS_LEVEL_MAX = 20;
+  const SENS_LEVEL_SPAN = SENS_LEVEL_MAX - SENS_LEVEL_MIN;
+
+  const SENSITIVITY_SPECS = {
+    rotate: { min: 0.001, max: 0.02, defaultLevel: 5, wasmFn: "_set_rotate_sens" },
+    pan: { min: 0.01, max: 0.2, defaultLevel: 5, wasmFn: "_set_pan_sens" },
+    zoom: { min: 0.05, max: 1.0, defaultLevel: 10, wasmFn: "_set_zoom_sens" },
+  };
+
+  const sensitivitySliders = [
+    {
+      key: "rotate",
+      slider: document.getElementById("rotate-sens-slider"),
+      label: document.getElementById("rotate-sens-level"),
+    },
+    {
+      key: "pan",
+      slider: document.getElementById("pan-sens-slider"),
+      label: document.getElementById("pan-sens-level"),
+    },
+    {
+      key: "zoom",
+      slider: document.getElementById("zoom-sens-slider"),
+      label: document.getElementById("zoom-sens-level"),
+    },
+  ];
+
+  const sensitivityValues = {};
 
   function wrapLightRad(rad) {
     if (!Number.isFinite(rad)) {
@@ -56,6 +89,42 @@
     slider.style.setProperty("--range-fill", `${pct}%`);
   }
 
+  function levelToValue(level, spec) {
+    const t = (level - SENS_LEVEL_MIN) / SENS_LEVEL_SPAN;
+    return spec.min + t * (spec.max - spec.min);
+  }
+
+  function pushSensitivityToWasm(key) {
+    const spec = SENSITIVITY_SPECS[key];
+    callWasm(spec.wasmFn, sensitivityValues[key]);
+  }
+
+  function syncSensitivityToWasm() {
+    for (const key of Object.keys(SENSITIVITY_SPECS)) {
+      pushSensitivityToWasm(key);
+    }
+  }
+
+  function syncSensitivitySlider({ key, slider, label }) {
+    const level = Number(slider.value);
+    const spec = SENSITIVITY_SPECS[key];
+    sensitivityValues[key] = levelToValue(level, spec);
+    label.textContent = `${level}/${SENS_LEVEL_MAX}`;
+    updateRangeFill(slider);
+    pushSensitivityToWasm(key);
+  }
+
+  function initSensitivitySliders() {
+    for (const entry of sensitivitySliders) {
+      const { key, slider } = entry;
+      slider.value = String(SENSITIVITY_SPECS[key].defaultLevel);
+      syncSensitivitySlider(entry);
+      slider.addEventListener("input", () => {
+        syncSensitivitySlider(entry);
+      });
+    }
+  }
+
   function setLightSlider(rad) {
     lightSlider.value = String(wrapLightRad(rad));
     updateRangeFill(lightSlider);
@@ -81,6 +150,7 @@
     callWasm("_set_model", Number(modelSelect.value));
     callWasm("_set_render_mode", Number(modeSelect.value));
     callWasm("_set_light_angle", wrapLightRad(Number(lightSlider.value)));
+    syncSensitivityToWasm();
     updateLightLabel();
   }
 
@@ -275,6 +345,14 @@
     uploadForm.reset();
   }
 
+  function openSettingsModal() {
+    settingsModal.classList.remove("hidden");
+  }
+
+  function closeSettingsModal() {
+    settingsModal.classList.add("hidden");
+  }
+
   function openHelpModal() {
     helpModal.classList.remove("hidden");
   }
@@ -346,6 +424,14 @@
     }
   });
 
+  settingsToggle.addEventListener("click", openSettingsModal);
+  settingsClose.addEventListener("click", closeSettingsModal);
+  settingsModal.addEventListener("click", (e) => {
+    if (e.target === settingsModal) {
+      closeSettingsModal();
+    }
+  });
+
   helpToggle.addEventListener("click", openHelpModal);
   helpClose.addEventListener("click", closeHelpModal);
   helpModal.addEventListener("click", (e) => {
@@ -355,6 +441,9 @@
   });
 
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !settingsModal.classList.contains("hidden")) {
+      closeSettingsModal();
+    }
     if (e.key === "Escape" && !helpModal.classList.contains("hidden")) {
       closeHelpModal();
     }
@@ -372,6 +461,9 @@
 
   updateLightLabel();
   updateRangeFill(lightSlider);
+  initSensitivitySliders();
+
+  window.sensitivityValues = sensitivityValues;
 
   const prevOnRuntimeInitialized = window.Module?.onRuntimeInitialized;
 
