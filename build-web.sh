@@ -9,7 +9,7 @@ emcc src/main.cpp src/math.cpp src/parser.cpp src/rasterizer.cpp src/scene.cpp \
   --embed-file models/ \
   --embed-file textures/ \
   -sALLOW_MEMORY_GROWTH=1 \
-  -sEXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' \
+  -sEXPORTED_RUNTIME_METHODS='["ccall","cwrap","FS"]' \
   -std=c++20 \
   -O3 \
   -DSDL_MAIN_USE_CALLBACKS=1 \

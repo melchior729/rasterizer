@@ -155,6 +155,64 @@
     Module[fn](...args);
   }
 
+  async function readFileAsUint8Array(file) {
+    const buffer = await file.arrayBuffer();
+    return new Uint8Array(buffer);
+  }
+
+  function writeToMemfs(path, data) {
+    Module.FS.writeFile(path, data);
+  }
+
+  async function handleUploadSubmit() {
+    if (!wasmReady() || !Module.FS) {
+      setLoadFailure("Rasterizer is not ready.");
+      return;
+    }
+
+    const objInput = document.getElementById("obj-file");
+    const mtlInput = document.getElementById("mtl-file");
+    const textureInput = document.getElementById("texture-files");
+    const objFile = objInput.files?.[0];
+
+    if (!objFile) {
+      setLoadFailure("OBJ file is required.");
+      return;
+    }
+
+    setLoadStatus("Loading model…", false);
+
+    try {
+      writeToMemfs("models/user.obj", await readFileAsUint8Array(objFile));
+
+      const mtlFile = mtlInput.files?.[0];
+      if (mtlFile) {
+        writeToMemfs(`models/${mtlFile.name}`, await readFileAsUint8Array(mtlFile));
+      }
+
+      const textureFiles = textureInput.files;
+      if (textureFiles?.length) {
+        for (const texFile of textureFiles) {
+          writeToMemfs(`textures/${texFile.name}`, await readFileAsUint8Array(texFile));
+        }
+      }
+
+      Module._reload_user_mesh();
+
+      if (Module._has_user_mesh()) {
+        syncModelSelect(5);
+        callWasm("_set_model", 5);
+        closeModal();
+        setLoadStatus("Model loaded.", false);
+        window.setTimeout(() => setLoadStatus("", true), 3000);
+      } else {
+        setLoadFailure("Could not load model. Check your files and try again.");
+      }
+    } catch (err) {
+      setLoadFailure(`Upload failed: ${err}`);
+    }
+  }
+
   function syncUiToWasm() {
     callWasm("_set_model", Number(modelSelect.value));
     callWasm("_set_render_mode", Number(modeSelect.value));
@@ -460,12 +518,7 @@
 
   uploadForm.addEventListener("submit", (e) => {
     e.preventDefault();
-    closeModal();
-    setLoadStatus(
-      "Upload will be enabled soon — OBJ, optional MTL, and textures.",
-      false
-    );
-    window.setTimeout(() => setLoadStatus("", true), 4000);
+    handleUploadSubmit();
   });
 
   updateLightLabel();
@@ -479,7 +532,8 @@
 
   canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 
-  window.Module = {
+  window.Module = window.Module || {};
+  Object.assign(window.Module, {
     canvas,
     setStatus(text) {
       if (text) {
@@ -504,5 +558,5 @@
     printErr(text) {
       console.error(text);
     },
-  };
+  });
 })();

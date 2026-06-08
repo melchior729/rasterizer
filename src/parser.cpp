@@ -257,10 +257,10 @@ Mesh Mesh::load(const std::string &path) {
     return mesh;
   }
 
-  float min{std::numeric_limits<float>::min()};
-  float max{std::numeric_limits<float>::max()};
-  Vec3 min_v{max, max, max};
-  Vec3 max_v{min, min, min};
+  float lo{std::numeric_limits<float>::lowest()};
+  float hi{std::numeric_limits<float>::max()};
+  Vec3 min_v{hi, hi, hi};
+  Vec3 max_v{lo, lo, lo};
 
   for (auto &v : mesh.vertices) {
     min_v.x = std::min(min_v.x, v.pos.x);

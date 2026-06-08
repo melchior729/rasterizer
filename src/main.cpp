@@ -27,8 +27,7 @@ static SceneObject turtle{turtle_mesh};
 static SceneObject plane{plane_mesh};
 
 #ifdef __EMSCRIPTEN__
-static Mesh user_mesh{};
-static SceneObject user_obj{user_mesh};
+static SceneObject user_obj{};
 static bool user_mesh_loaded{false};
 #endif
 
@@ -554,7 +553,23 @@ float web_get_light_step() { return get_light_step(); }
 int web_has_user_mesh() { return user_mesh_loaded ? 1 : 0; }
 
 void web_reload_user_mesh() {
-  // when loading user models from memfs
+  Mesh loaded{Mesh::load("user.obj")};
+  if (loaded.vertices.empty()) {
+    user_mesh_loaded = false;
+    return;
+  }
+
+  user_obj.mesh = std::move(loaded);
+  user_obj.t = default_t;
+  user_obj.r = default_r;
+  user_obj.s = default_s;
+  user_obj.update_matrix();
+  user_mesh_loaded = true;
+
+  if (g_app_state) {
+    g_app_state->object = &user_obj;
+    g_app_state->camera.reset();
+  }
 }
 
 // clang-format on
