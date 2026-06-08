@@ -56,27 +56,27 @@ Run the web build locally and open `http://localhost:8000` (see [Running](#runni
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                         Application Layer                        │
+│                         Application Layer                       │
 │  main.cpp  (SDL3 callbacks, input, scene setup, web bridge)     │
 │  web/      (index.html, app.js, styles.css browser UI)          │
 └────────────────────────────┬────────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
-│                          Scene Layer                             │
+│                          Scene Layer                            │
 │  scene.cpp (model/view/projection, culling, draw dispatch)      │
 └────────────────────────────┬────────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
-│                       Rasterizer Layer                           │
+│                       Rasterizer Layer                          │
 │  rasterizer.cpp (Bresenham lines, triangle fill, shading)       │
 └────────────────────────────┬────────────────────────────────────┘
                              │
 ┌────────────────────────────▼────────────────────────────────────┐
-│                     Foundation Layer                             │
+│                     Foundation Layer                            │
 │  math.cpp      (Mat4, transforms, perspective projection)       │
 │  parser.cpp    (OBJ/MTL parsing, mesh normalization)            │
-│  texture.cpp   (image loading and sampling)                       │
-│  frame_buffer  (color + depth buffers)                            │
+│  texture.cpp   (image loading and sampling)                     │
+│  frame_buffer  (color + depth buffers)                          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
