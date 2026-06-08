@@ -25,6 +25,10 @@
   box-sizing: border-box;
 }
 
+.hidden {
+  display: none !important;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -741,6 +745,182 @@ button.secondary:hover {
 
 .modal--settings {
   max-width: 28rem;
+}
+
+.modal--upload {
+  max-width: 32rem;
+}
+
+.upload-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.upload-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.upload-section-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.upload-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 3px;
+  border: 1px solid var(--border);
+}
+
+.upload-badge--required {
+  color: var(--corner-active);
+  border-color: var(--corner-active);
+}
+
+.upload-badge--optional {
+  color: var(--muted);
+  border-color: var(--border);
+}
+
+.upload-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+  background: rgba(10, 13, 20, 0.35);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.upload-drop:hover,
+.upload-drop.is-dragover {
+  border-color: var(--accent);
+  background: var(--accent-glow);
+}
+
+.upload-drop:focus-within {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.upload-drop-text,
+.upload-drop-name {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.upload-drop-name {
+  color: var(--text);
+  word-break: break-all;
+}
+
+.upload-drop-name:not(.hidden) + .upload-drop-text,
+.upload-drop:has(.upload-drop-name:not(.hidden)) .upload-drop-text {
+  display: none;
+}
+
+.upload-checklist {
+  margin-bottom: 0.25rem;
+}
+
+button.upload-checklist-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: rgba(10, 13, 20, 0.35);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+button.upload-checklist-toggle:hover,
+button.upload-checklist-toggle:focus,
+button.upload-checklist-toggle:focus-visible {
+  border-color: var(--accent);
+  color: var(--text);
+  background: var(--accent-glow);
+  outline: none;
+}
+
+.upload-checklist-toggle[aria-expanded="true"] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+
+.upload-checklist-chevron {
+  font-size: 0.65rem;
+  transition: transform 0.15s ease;
+}
+
+.upload-checklist-toggle[aria-expanded="true"] .upload-checklist-chevron {
+  transform: rotate(180deg);
+}
+
+.upload-checklist-panel {
+  padding: 0.75rem 0.85rem;
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 6px 6px;
+  background: rgba(10, 13, 20, 0.35);
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.upload-checklist-panel ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.upload-checklist-panel li {
+  position: relative;
+  padding: 0.45rem 0 0.45rem 1rem;
+  border-bottom: 1px solid rgba(42, 53, 64, 0.6);
+}
+
+.upload-checklist-panel li:last-child {
+  border-bottom: none;
+}
+
+.upload-checklist-panel li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.85rem;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  border: 1px solid var(--muted);
+}
+
+.upload-checklist-panel code {
+  font-size: 0.75rem;
+  color: var(--cyan);
 }
 
 .settings-fields {

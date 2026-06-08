@@ -9,8 +9,11 @@
   const handBtn = document.getElementById("hand-btn");
   const uploadBtn = document.getElementById("upload-btn");
   const uploadModal = document.getElementById("upload-modal");
+  const uploadClose = document.getElementById("upload-close");
   const uploadCancel = document.getElementById("upload-cancel");
   const uploadForm = document.getElementById("upload-form");
+  const uploadChecklistToggle = document.getElementById("upload-checklist-toggle");
+  const uploadChecklistPanel = document.getElementById("upload-checklist-panel");
   const settingsToggle = document.getElementById("settings-toggle");
   const settingsModal = document.getElementById("settings-modal");
   const settingsClose = document.getElementById("settings-close");
@@ -407,9 +410,95 @@
   window.syncModeSelect = syncModeSelect;
   window.syncLightAngle = syncLightAngle;
 
+  function setDropZoneDisplay(nameEl, textEl, files, emptyText) {
+    if (!files?.length) {
+      nameEl.textContent = "";
+      nameEl.classList.add("hidden");
+      textEl.textContent = emptyText;
+      textEl.classList.remove("hidden");
+      return;
+    }
+
+    nameEl.textContent = files.length === 1 ? files[0].name : `${files.length} files selected`;
+    nameEl.classList.remove("hidden");
+    textEl.classList.add("hidden");
+  }
+
+  function assignFilesToInput(input, files) {
+    const dt = new DataTransfer();
+    for (const file of files) {
+      dt.items.add(file);
+    }
+    input.files = dt.files;
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }
+
+  function fileMatchesAccept(file, accept) {
+    return accept.split(",").some((rule) => {
+      const trimmed = rule.trim().toLowerCase();
+      if (trimmed.startsWith(".")) {
+        return file.name.toLowerCase().endsWith(trimmed);
+      }
+      if (trimmed.endsWith("/*")) {
+        return file.type.startsWith(trimmed.slice(0, -1));
+      }
+      return file.type === trimmed;
+    });
+  }
+
+  function initDropZone({ dropEl, input, nameEl, textEl, emptyText, multiple, accept }) {
+    input.addEventListener("change", () => {
+      setDropZoneDisplay(nameEl, textEl, input.files, emptyText);
+    });
+
+    dropEl.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      dropEl.classList.add("is-dragover");
+    });
+
+    dropEl.addEventListener("dragleave", () => {
+      dropEl.classList.remove("is-dragover");
+    });
+
+    dropEl.addEventListener("drop", (e) => {
+      e.preventDefault();
+      dropEl.classList.remove("is-dragover");
+      const files = [...e.dataTransfer.files].filter((file) => fileMatchesAccept(file, accept));
+      if (!files.length) {
+        return;
+      }
+      assignFilesToInput(input, multiple ? files : [files[0]]);
+    });
+  }
+
+  function resetUploadUi() {
+    setDropZoneDisplay(
+      document.getElementById("obj-name"),
+      document.querySelector("#obj-drop .upload-drop-text"),
+      null,
+      "Drop .obj file or click to browse"
+    );
+    setDropZoneDisplay(
+      document.getElementById("mtl-name"),
+      document.querySelector("#mtl-drop .upload-drop-text"),
+      null,
+      "Drop .mtl file or click to browse"
+    );
+    setDropZoneDisplay(
+      document.getElementById("texture-name"),
+      document.querySelector("#texture-drop .upload-drop-text"),
+      null,
+      "Drop image files or click to browse"
+    );
+    uploadChecklistToggle.setAttribute("aria-expanded", "false");
+    uploadChecklistPanel.classList.add("hidden");
+    document.querySelectorAll(".upload-drop").forEach((el) => el.classList.remove("is-dragover"));
+  }
+
   function closeModal() {
     uploadModal.classList.add("hidden");
     uploadForm.reset();
+    resetUploadUi();
   }
 
   function openSettingsModal() {
@@ -484,7 +573,41 @@
   });
 
   uploadBtn.addEventListener("click", openModal);
+  uploadClose.addEventListener("click", closeModal);
   uploadCancel.addEventListener("click", closeModal);
+  uploadChecklistToggle.addEventListener("click", () => {
+    const expanded = uploadChecklistToggle.getAttribute("aria-expanded") === "true";
+    uploadChecklistToggle.setAttribute("aria-expanded", expanded ? "false" : "true");
+    uploadChecklistPanel.classList.toggle("hidden", expanded);
+  });
+
+  initDropZone({
+    dropEl: document.getElementById("obj-drop"),
+    input: document.getElementById("obj-file"),
+    nameEl: document.getElementById("obj-name"),
+    textEl: document.querySelector("#obj-drop .upload-drop-text"),
+    emptyText: "Drop .obj file or click to browse",
+    multiple: false,
+    accept: ".obj",
+  });
+  initDropZone({
+    dropEl: document.getElementById("mtl-drop"),
+    input: document.getElementById("mtl-file"),
+    nameEl: document.getElementById("mtl-name"),
+    textEl: document.querySelector("#mtl-drop .upload-drop-text"),
+    emptyText: "Drop .mtl file or click to browse",
+    multiple: false,
+    accept: ".mtl",
+  });
+  initDropZone({
+    dropEl: document.getElementById("texture-drop"),
+    input: document.getElementById("texture-files"),
+    nameEl: document.getElementById("texture-name"),
+    textEl: document.querySelector("#texture-drop .upload-drop-text"),
+    emptyText: "Drop image files or click to browse",
+    multiple: true,
+    accept: "image/*",
+  });
   uploadModal.addEventListener("click", (e) => {
     if (e.target === uploadModal) {
       closeModal();
@@ -508,6 +631,9 @@
   });
 
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !uploadModal.classList.contains("hidden")) {
+      closeModal();
+    }
     if (e.key === "Escape" && !settingsModal.classList.contains("hidden")) {
       closeSettingsModal();
     }

@@ -150,23 +150,74 @@
     </div>
 
     <div id="upload-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="upload-title">
-      <div class="modal">
-        <h3 id="upload-title">Upload model</h3>
-        <p>Provide an OBJ file. MTL and texture images are optional.</p>
+      <div class="modal modal--upload">
+        <div class="modal-header">
+          <h3 id="upload-title">Upload Model</h3>
+          <button type="button" class="modal-close" id="upload-close" aria-label="Close">×</button>
+        </div>
+
         <form id="upload-form">
-          <div class="field">
-            <label for="obj-file">OBJ file (required)</label>
-            <input id="obj-file" name="obj" type="file" accept=".obj" required />
+          <div class="upload-sections">
+            <div class="upload-section">
+              <div class="upload-section-head">
+                <span class="upload-section-label">OBJ</span>
+                <span class="upload-badge upload-badge--required">Required</span>
+              </div>
+              <label class="upload-drop" id="obj-drop" for="obj-file">
+                <span class="upload-drop-text">Drop .obj file or click to browse</span>
+                <span class="upload-drop-name hidden" id="obj-name"></span>
+                <input id="obj-file" name="obj" type="file" accept=".obj" required hidden />
+              </label>
+            </div>
+
+            <div class="upload-section">
+              <div class="upload-section-head">
+                <span class="upload-section-label">MTL</span>
+                <span class="upload-badge upload-badge--optional">Optional</span>
+              </div>
+              <label class="upload-drop" id="mtl-drop" for="mtl-file">
+                <span class="upload-drop-text">Drop .mtl file or click to browse</span>
+                <span class="upload-drop-name hidden" id="mtl-name"></span>
+                <input id="mtl-file" name="mtl" type="file" accept=".mtl" hidden />
+              </label>
+            </div>
+
+            <div class="upload-section">
+              <div class="upload-section-head">
+                <span class="upload-section-label">Textures</span>
+                <span class="upload-badge upload-badge--optional">Optional</span>
+              </div>
+              <label class="upload-drop" id="texture-drop" for="texture-files">
+                <span class="upload-drop-text">Drop image files or click to browse</span>
+                <span class="upload-drop-name hidden" id="texture-name"></span>
+                <input id="texture-files" name="textures" type="file" accept="image/*" multiple hidden />
+              </label>
+            </div>
           </div>
-          <div class="field">
-            <label for="mtl-file">MTL file (optional)</label>
-            <input id="mtl-file" name="mtl" type="file" accept=".mtl" />
+
+          <div class="upload-checklist">
+            <button
+              type="button"
+              class="upload-checklist-toggle"
+              id="upload-checklist-toggle"
+              aria-expanded="false"
+              aria-controls="upload-checklist-panel"
+            >
+              <span>Caveats</span>
+              <span class="upload-checklist-chevron" aria-hidden="true">▼</span>
+            </button>
+            <div class="upload-checklist-panel hidden" id="upload-checklist-panel">
+              <ul>
+                <li>OBJ opens correctly in Blender or another viewer</li>
+                <li>Quads split automatically, but n-gons render only their first triangle</li>
+                <li><code>mtllib</code> name in OBJ matches the MTL filename you upload</li>
+                <li>Texture paths in MTL are relative (not absolute like <code>C:/Users/...</code>)</li>
+                <li>Texture filenames use no spaces, no backslashes, ASCII only</li>
+                <li>Texture filenames in MTL match uploaded image names exactly (case-sensitive)</li>
+              </ul>
+            </div>
           </div>
-          <div class="field">
-            <label for="texture-files">Textures (optional)</label>
-            <input id="texture-files" name="textures" type="file" accept="image/*" multiple />
-          </div>
-          <p class="modal-note">Upload parsing is coming in the next phase.</p>
+
           <div class="modal-actions">
             <button type="button" class="secondary" id="upload-cancel">Cancel</button>
             <button type="submit">Upload</button>
@@ -301,7 +352,7 @@
       </div>
     </div>
 
-    <script src="app.js?v=2"></script>
+    <script src="app.js?v=4"></script>
     <script async src="rasterizer.js"></script>
   </body>
 </html>
