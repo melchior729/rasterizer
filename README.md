@@ -2,6 +2,8 @@
 
 A from-scratch **software 3D rasterizer** written in modern C++20. Triangles are transformed, clipped, and shaded entirely on the CPU with no OpenGL, Vulkan, or GPU pipeline. The same core engine runs as a native desktop app (SDL3) and in the browser (WebAssembly via Emscripten), with an interactive web UI for model selection, shading modes, lighting, and custom OBJ uploads.
 
+![Project Screenshot](imgs/base.png)
+
 ---
 
 ## Table of Contents
@@ -43,12 +45,6 @@ A from-scratch **software 3D rasterizer** written in modern C++20. Triangles are
   - **Native**: SDL3 window with keyboard + mouse input
   - **Web**: Emscripten build with HTML/JS controls, drag-and-drop model upload, and sensitivity settings
 - **Performance overlay** showing frame time, FPS, and visible face count
-
----
-
-## Screenshots & Demo
-
-Run the web build locally and open `http://localhost:8000` (see [Running](#running)). The viewer renders against a starfield background with a subtle grid overlay texture.
 
 ---
 
